@@ -4,156 +4,215 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIDITA Admin — Fleet &amp; Operations Panel</title>
+<link rel="icon" type="image/png" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   :root{
-    --bg:#ffffff; --bg-soft:#f6f8f9; --ink:#0b1a1a; --ink-soft:#2f4040;
-    --green:#1a7a5a; --green-dark:#0e5f45; --gold:#d4a14b; --gold-light:#f3e3c4;
-    --border:rgba(0,0,0,0.08); --shadow:0 12px 30px rgba(0,0,0,0.06);
-    --radius:16px; --danger:#c0392b;
+    --emerald:#106B4A; --emerald-deep:#0A4E36; --emerald-tint:#E8F2ED;
+    --gold:#C9A227; --gold-deep:#A9841A; --gold-light:#F6EDD3;
+    --ash:#EEF0F0; --ash-deep:#E5E8E8;
+    --ink:#0E1C19; --ink-soft:#54615D; --ink-faint:#8A9591;
+    --white-glass:rgba(255,255,255,0.72);
+    --border:rgba(14,28,25,0.08);
+    --shadow-sm:0 8px 24px rgba(14,28,25,0.06);
+    --shadow-md:0 20px 48px rgba(14,28,25,0.10);
+    --radius:20px; --radius-sm:12px;
+    --danger:#B3392C; --danger-tint:#FBEAE7;
   }
-  html,body{height:100%;}
+  html,body{ height:100%; }
   body{
     font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-    background:var(--bg-soft); color:var(--ink); line-height:1.5;
+    color:var(--ink); line-height:1.5;
+    background-color:var(--ash);
+    background-image:
+      repeating-linear-gradient(135deg, rgba(14,28,25,0.025) 0px, rgba(14,28,25,0.025) 1px, transparent 1px, transparent 26px),
+      repeating-linear-gradient(135deg, transparent 0, transparent 25px, var(--ash-deep) 25px, var(--ash-deep) 26px);
+    background-attachment:fixed;
   }
-  h1,h2,h3,h4{ font-family:'Syne','Inter',sans-serif; font-weight:600; letter-spacing:-0.01em; }
+  h1,h2,h3,h4{ font-family:'Syne','Inter',sans-serif; font-weight:700; letter-spacing:-0.01em; }
   a{ color:inherit; }
   button{ font-family:inherit; cursor:pointer; }
   input, select, textarea{ font-family:inherit; font-size:14px; }
+  ::selection{ background:var(--gold-light); }
 
-  /* ---------- Login ---------- */
+  .logo-mark{ display:flex; align-items:center; gap:10px; }
+  .logo-mark img{ height:34px; width:auto; display:block; }
+  .logo-mark .logo-fallback{
+    display:none; width:34px; height:34px; border-radius:9px; background:var(--gold);
+    color:var(--emerald-deep); align-items:center; justify-content:center; font-family:'Syne'; font-weight:800; font-size:15px;
+  }
+  .logo-mark span.word{ font-family:'Syne'; font-weight:700; font-size:17px; letter-spacing:-0.01em; }
+
+  /* ================= LOGIN ================= */
   #loginScreen{
-    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
-    background: radial-gradient(circle at 20% 20%, #eef6f2 0%, var(--bg-soft) 60%);
+    min-height:100vh; display:flex;
+    background:
+      linear-gradient(105deg, rgba(10,15,14,0.92) 0%, rgba(16,107,74,0.82) 46%, rgba(16,107,74,0.35) 78%),
+      url('https://images.unsplash.com/photo-1629377856766-72c3bb4c86c6?fm=jpg&q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
   }
+  .login-side{ flex:1; display:flex; flex-direction:column; justify-content:space-between; padding:48px; color:#fff; }
+  .login-side .top .logo-mark span.word{ color:#fff; }
+  .login-side .top .logo-mark .logo-fallback{ background:var(--gold); color:var(--emerald-deep); }
+  .login-side .pitch{ max-width:420px; }
+  .login-side .pitch .eyebrow{ display:inline-block; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.3); padding:6px 14px; border-radius:30px; font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin-bottom:18px; backdrop-filter:blur(6px); }
+  .login-side .pitch h1{ font-size:clamp(26px,3vw,36px); line-height:1.15; margin-bottom:12px; }
+  .login-side .pitch p{ color:rgba(255,255,255,0.78); font-size:14.5px; max-width:380px; }
+  .login-side .foot{ font-size:12.5px; color:rgba(255,255,255,0.55); }
+
+  .login-panel{ width:440px; max-width:100%; display:flex; align-items:center; justify-content:center; padding:32px; }
   .login-card{
-    background:#fff; border-radius:24px; padding:44px; width:100%; max-width:400px;
-    box-shadow:var(--shadow); border:1px solid var(--border);
+    background:rgba(255,255,255,0.92); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border-radius:24px; padding:40px 36px; width:100%; max-width:380px;
+    box-shadow:0 30px 70px rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.6);
   }
-  .login-brand{ display:flex; align-items:center; gap:10px; margin-bottom:28px; }
-  .login-brand .dot{ width:12px; height:12px; border-radius:50%; background:var(--green); }
-  .login-brand span{ font-family:'Syne'; font-weight:700; font-size:19px; }
-  .login-card h2{ font-size:22px; margin-bottom:6px; }
-  .login-card p.sub{ color:var(--ink-soft); font-size:14px; margin-bottom:24px; }
+  .login-card .gold-rule{ width:44px; height:3px; background:var(--gold); border-radius:4px; margin-bottom:18px; }
+  .login-card h2{ font-size:23px; margin-bottom:6px; }
+  .login-card p.sub{ color:var(--ink-soft); font-size:13.5px; margin-bottom:26px; }
   .field{ margin-bottom:16px; }
-  .field label{ display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--ink-soft); }
+  .field label{ display:block; font-size:12.5px; font-weight:600; margin-bottom:6px; color:var(--ink-soft); }
   .field input, .field select, .field textarea{
-    width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:10px;
-    outline:none; transition:0.15s;
+    width:100%; padding:12.5px 14px; border:1.5px solid var(--border); border-radius:10px;
+    outline:none; transition:0.15s; background:#fff;
   }
-  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--green); }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--emerald); box-shadow:0 0 0 3px var(--emerald-tint); }
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px;
     padding:13px 22px; font-weight:600; font-size:14px; border-radius:60px; border:none;
     transition:0.2s;
   }
-  .btn-primary{ background:var(--green); color:#fff; }
-  .btn-primary:hover{ background:var(--green-dark); }
+  .btn-primary{ background:var(--emerald); color:#fff; }
+  .btn-primary:hover{ background:var(--emerald-deep); }
+  .btn-gold{ background:var(--gold); color:#26200a; }
+  .btn-gold:hover{ background:var(--gold-deep); }
   .btn-outline{ background:transparent; border:1.5px solid var(--ink); color:var(--ink); }
   .btn-outline:hover{ background:var(--ink); color:#fff; }
-  .btn-danger{ background:#fdeceb; color:var(--danger); }
+  .btn-danger{ background:var(--danger-tint); color:var(--danger); }
   .btn-danger:hover{ background:var(--danger); color:#fff; }
   .btn-block{ width:100%; }
-  .btn-sm{ padding:8px 14px; font-size:13px; border-radius:40px; }
-  #loginError{ color:var(--danger); font-size:13px; margin-top:10px; display:none; }
-  #apiBaseNotice{ font-size:12px; color:var(--ink-soft); margin-top:18px; text-align:center; }
+  .btn-sm{ padding:9px 16px; font-size:13px; }
+  #loginError{ color:var(--danger); font-size:13px; margin-top:10px; display:none; background:var(--danger-tint); padding:9px 12px; border-radius:8px; }
+  #apiBaseNotice{ font-size:11.5px; color:var(--ink-faint); margin-top:20px; text-align:center; }
 
-  /* ---------- App shell ---------- */
+  /* ================= APP SHELL ================= */
   #app{ display:none; min-height:100vh; }
   .sidebar{
-    width:230px; background:var(--ink); color:#fff; flex-shrink:0; padding:24px 18px;
-    display:flex; flex-direction:column; position:fixed; top:0; bottom:0; left:0;
+    width:250px; flex-shrink:0; padding:26px 18px; display:flex; flex-direction:column;
+    position:fixed; top:0; bottom:0; left:0; z-index:60;
+    background:linear-gradient(190deg, var(--emerald) 0%, var(--emerald-deep) 100%);
+    color:#fff; transition:transform .25s ease;
   }
-  .sidebar .brand{ display:flex; align-items:center; gap:10px; margin-bottom:36px; padding:0 6px; }
-  .sidebar .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--gold); }
-  .sidebar .brand span{ font-family:'Syne'; font-weight:700; font-size:17px; }
+  .sidebar .brand-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding:0 4px; }
+  .sidebar .logo-mark span.word{ color:#fff; }
+  .sidebar .logo-mark .logo-fallback{ background:var(--gold); color:var(--emerald-deep); }
+  .sidebar .gold-rule{ width:100%; height:1px; background:linear-gradient(90deg, var(--gold) 0%, rgba(201,162,39,0) 100%); margin:18px 0 22px; }
+  .sidebar-close{ display:none; background:none; border:none; color:rgba(255,255,255,0.7); font-size:20px; }
   .sidebar nav{ display:flex; flex-direction:column; gap:4px; flex:1; }
   .nav-item{
-    display:flex; align-items:center; gap:10px; padding:11px 14px; border-radius:10px;
-    color:rgba(255,255,255,0.7); font-size:14px; font-weight:500; background:none; border:none;
-    text-align:left; width:100%;
+    display:flex; align-items:center; gap:11px; padding:12px 14px; border-radius:12px;
+    color:rgba(255,255,255,0.68); font-size:14px; font-weight:500; background:none; border:none;
+    text-align:left; width:100%; position:relative; transition:0.15s;
   }
-  .nav-item:hover{ background:rgba(255,255,255,0.06); color:#fff; }
-  .nav-item.active{ background:var(--green); color:#fff; }
+  .nav-item svg{ flex-shrink:0; opacity:0.85; }
+  .nav-item:hover{ background:rgba(255,255,255,0.07); color:#fff; }
+  .nav-item.active{ background:rgba(255,255,255,0.12); color:#fff; }
+  .nav-item.active::before{ content:''; position:absolute; left:-18px; top:8px; bottom:8px; width:4px; background:var(--gold); border-radius:0 6px 6px 0; }
   .sidebar .logout{ margin-top:auto; }
-  .main{ margin-left:230px; flex:1; padding:32px 40px; width:calc(100% - 230px); }
-  .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
-  .topbar h1{ font-size:24px; }
-  .topbar .who{ font-size:13px; color:var(--ink-soft); }
+
+  .main{ margin-left:250px; flex:1; min-width:0; }
+  .topbar{
+    position:sticky; top:0; z-index:40; display:flex; align-items:center; justify-content:space-between;
+    padding:16px 32px; background:var(--white-glass); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar-left{ display:flex; align-items:center; gap:14px; }
+  .hamburger{ display:none; background:none; border:none; flex-direction:column; gap:4px; padding:4px; }
+  .hamburger span{ width:20px; height:2px; background:var(--ink); border-radius:3px; }
+  .topbar h1{ font-size:21px; }
+  .who-chip{ display:flex; align-items:center; gap:9px; }
+  .who-chip .avatar{ width:34px; height:34px; border-radius:50%; background:var(--gold); color:var(--emerald-deep); display:flex; align-items:center; justify-content:center; font-family:'Syne'; font-weight:700; font-size:13px; }
+  .who-chip .who-name{ font-size:13.5px; font-weight:600; }
+  .who-chip .who-role{ font-size:11.5px; color:var(--ink-soft); }
+
+  .content{ padding:28px 32px 60px; }
   .view{ display:none; }
   .view.active{ display:block; }
 
   /* ---------- Dashboard ---------- */
-  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:28px; }
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:24px; }
   .stat-card{
-    background:#fff; border-radius:var(--radius); padding:20px; box-shadow:var(--shadow);
-    border:1px solid var(--border);
+    background:#fff; border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow-sm);
+    border:1px solid var(--border); position:relative; overflow:hidden;
   }
+  .stat-card::before{ content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--emerald), var(--gold)); }
+  .stat-card .icon{ width:36px; height:36px; border-radius:10px; background:var(--emerald-tint); display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
   .stat-card .label{ font-size:12px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
-  .stat-card .value{ font-size:28px; font-family:'Syne'; font-weight:700; margin-top:6px; }
+  .stat-card .value{ font-size:27px; font-family:'Syne'; font-weight:700; margin-top:4px; }
   .chart-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:18px; }
-  .chart-card{
-    background:#fff; border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);
-    border:1px solid var(--border);
-  }
-  .chart-card h3{ font-size:15px; margin-bottom:14px; }
+  .chart-card{ background:#fff; border-radius:var(--radius); padding:22px; box-shadow:var(--shadow-sm); border:1px solid var(--border); }
+  .chart-card h3{ font-size:15px; margin-bottom:16px; }
 
-  /* ---------- Tables ---------- */
-  .panel{ background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid var(--border); overflow:hidden; }
+  /* ---------- Panels / Tables ---------- */
+  .panel{ background:#fff; border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--border); overflow:hidden; }
   .panel-head{ display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:10px; }
   .panel-head h3{ font-size:16px; }
-  .tabs{ display:flex; gap:6px; }
-  .tab{ padding:7px 14px; border-radius:30px; border:1px solid var(--border); background:transparent; font-size:13px; font-weight:500; color:var(--ink-soft); }
-  .tab.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
-  table{ width:100%; border-collapse:collapse; }
-  th, td{ text-align:left; padding:13px 22px; font-size:13.5px; border-bottom:1px solid var(--border); }
-  th{ color:var(--ink-soft); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em; background:var(--bg-soft); }
+  .tabs{ display:flex; gap:6px; flex-wrap:wrap; }
+  .tab{ padding:7px 14px; border-radius:30px; border:1px solid var(--border); background:transparent; font-size:12.5px; font-weight:600; color:var(--ink-soft); }
+  .tab.active{ background:var(--emerald); color:#fff; border-color:var(--emerald); }
+  .table-scroll{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; min-width:640px; }
+  th, td{ text-align:left; padding:14px 22px; font-size:13.5px; border-bottom:1px solid var(--border); }
+  th{ color:var(--ink-soft); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; background:var(--ash); }
   tr:last-child td{ border-bottom:none; }
-  .badge{ display:inline-block; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
-  .badge-available{ background:#e4f5ee; color:var(--green-dark); }
-  .badge-leased, .badge-rented{ background:var(--gold-light); color:#8a6417; }
-  .badge-maintenance{ background:#fdeceb; color:var(--danger); }
-  .badge-pending{ background:#fdf3d8; color:#8a6417; }
-  .badge-approved, .badge-active{ background:#e4f5ee; color:var(--green-dark); }
-  .badge-completed{ background:#e7ecf0; color:var(--ink-soft); }
-  .badge-cancelled{ background:#fdeceb; color:var(--danger); }
+  tbody tr:hover{ background:var(--emerald-tint); }
+  .badge{ display:inline-block; padding:4px 11px; border-radius:20px; font-size:11.5px; font-weight:700; text-transform:capitalize; }
+  .badge-available{ background:var(--emerald-tint); color:var(--emerald-deep); }
+  .badge-leased, .badge-rented{ background:var(--gold-light); color:var(--gold-deep); }
+  .badge-maintenance{ background:var(--danger-tint); color:var(--danger); }
+  .badge-pending{ background:var(--gold-light); color:var(--gold-deep); }
+  .badge-approved, .badge-active{ background:var(--emerald-tint); color:var(--emerald-deep); }
+  .badge-completed{ background:var(--ash-deep); color:var(--ink-soft); }
+  .badge-cancelled{ background:var(--danger-tint); color:var(--danger); }
   .row-actions{ display:flex; gap:8px; }
-  .empty-row td{ text-align:center; color:var(--ink-soft); padding:36px 22px; }
+  .empty-row td{ text-align:center; color:var(--ink-soft); padding:44px 22px; }
 
   /* ---------- Modal ---------- */
-  .modal-overlay{
-    display:none; position:fixed; inset:0; background:rgba(11,26,26,0.5); z-index:200;
-    align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto;
-  }
+  .modal-overlay{ display:none; position:fixed; inset:0; background:rgba(14,28,25,0.55); backdrop-filter:blur(2px); z-index:200; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto; }
   .modal-overlay.show{ display:flex; }
-  .modal{
-    background:#fff; border-radius:20px; width:100%; max-width:560px; padding:32px;
-    box-shadow:0 30px 60px rgba(0,0,0,0.2);
-  }
+  .modal{ background:#fff; border-radius:22px; width:100%; max-width:580px; padding:32px; box-shadow:0 30px 70px rgba(0,0,0,0.28); }
   .modal h3{ font-size:19px; margin-bottom:20px; }
   .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   .field.full{ grid-column:1/-1; }
-  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:22px; flex-wrap:wrap; }
   fieldset{ border:1px dashed var(--border); border-radius:12px; padding:14px 16px; margin-top:6px; }
-  legend{ font-size:12px; font-weight:600; color:var(--ink-soft); padding:0 6px; }
+  legend{ font-size:11.5px; font-weight:700; color:var(--emerald-deep); padding:0 6px; text-transform:uppercase; letter-spacing:.03em; }
 
-  .toast{
-    position:fixed; bottom:24px; right:24px; background:var(--ink); color:#fff; padding:14px 20px;
-    border-radius:12px; font-size:14px; box-shadow:var(--shadow); z-index:300; display:none;
-  }
+  .toast{ position:fixed; bottom:24px; right:24px; background:var(--ink); color:#fff; padding:14px 20px; border-radius:12px; font-size:14px; box-shadow:var(--shadow-md); z-index:300; display:none; }
   .toast.show{ display:block; }
 
-  @media (max-width:900px){
-    .sidebar{ display:none; }
-    .main{ margin-left:0; width:100%; padding:20px; }
+  .sidebar-overlay{ display:none; position:fixed; inset:0; background:rgba(14,28,25,0.5); z-index:55; }
+  .sidebar-overlay.show{ display:block; }
+
+  @media (max-width:980px){
+    .sidebar{ transform:translateX(-100%); box-shadow:0 0 60px rgba(0,0,0,0.3); }
+    .sidebar.open{ transform:translateX(0); }
+    .sidebar-close{ display:block; }
+    .main{ margin-left:0; }
+    .hamburger{ display:flex; }
     .stat-grid{ grid-template-columns:1fr 1fr; }
     .chart-grid{ grid-template-columns:1fr; }
+    .content{ padding:20px; }
+    .topbar{ padding:14px 18px; }
+  }
+  @media (max-width:640px){
+    .stat-grid{ grid-template-columns:1fr; }
     .form-row{ grid-template-columns:1fr; }
+    .who-chip .who-role{ display:none; }
+    .login-side{ display:none; }
+    .login-panel{ width:100%; padding:20px; }
   }
 </style>
 </head>
@@ -161,86 +220,149 @@
 
 <!-- ============ LOGIN ============ -->
 <div id="loginScreen">
-  <div class="login-card">
-    <div class="login-brand"><div class="dot"></div><span>SIDITA Admin</span></div>
-    <h2>Welcome back</h2>
-    <p class="sub">Sign in to manage the fleet and view operations.</p>
-    <form id="loginForm">
-      <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@sidita-rentals.com" required></div>
-      <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" required></div>
-      <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-      <p id="loginError"></p>
-    </form>
-    <p id="apiBaseNotice">Connecting to API — set API_BASE in index.html once your backend is deployed.</p>
+  <div class="login-side">
+    <div class="top logo-mark">
+      <img src="logo.png" alt="SIDITA" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="logo-fallback">S</div>
+      <span class="word">SIDITA Admin</span>
+    </div>
+    <div class="pitch">
+      <span class="eyebrow">Operations panel</span>
+      <h1>Run the fleet with clarity, not spreadsheets.</h1>
+      <p>Track every vehicle, every lease request, and every tracker ping — all from one calm, uncluttered dashboard.</p>
+    </div>
+    <div class="foot">Photo: Stefan Briggs / Unsplash</div>
+  </div>
+  <div class="login-panel">
+    <div class="login-card">
+      <div class="gold-rule"></div>
+      <h2>Welcome back</h2>
+      <p class="sub">Sign in to manage the fleet and view operations.</p>
+      <form id="loginForm">
+        <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@sidita-rentals.com" required></div>
+        <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" required></div>
+        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        <p id="loginError"></p>
+      </form>
+      <p id="apiBaseNotice">Connecting to API — set API_BASE in index.html once your backend is deployed.</p>
+    </div>
   </div>
 </div>
 
 <!-- ============ APP ============ -->
 <div id="app">
-  <aside class="sidebar">
-    <div class="brand"><div class="dot"></div><span>SIDITA Admin</span></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand-row">
+      <div class="logo-mark">
+        <img src="logo.png" alt="SIDITA" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="logo-fallback">S</div>
+        <span class="word">SIDITA Admin</span>
+      </div>
+      <button class="sidebar-close" id="sidebarCloseBtn">&times;</button>
+    </div>
+    <div class="gold-rule"></div>
     <nav>
-      <button class="nav-item active" data-view="dashboard">Dashboard</button>
-      <button class="nav-item" data-view="vehicles">Vehicles</button>
-      <button class="nav-item" data-view="requests">Requests</button>
+      <button class="nav-item active" data-view="dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-view="vehicles">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l1.5-5A2 2 0 0 1 6.4 6.5h11.2a2 2 0 0 1 1.9 1.5L21 13"/><rect x="2.5" y="13" width="19" height="6" rx="1.5"/><circle cx="7" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg>
+        Vehicles
+      </button>
+      <button class="nav-item" data-view="requests">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v3M16 3v3M4 8h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="M8 13l2.5 2.5L16 10"/></svg>
+        Requests
+      </button>
     </nav>
-    <button class="nav-item logout" id="logoutBtn">Log out</button>
+    <button class="nav-item logout" id="logoutBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+      Log out
+    </button>
   </aside>
 
   <main class="main">
     <div class="topbar">
-      <h1 id="viewTitle">Dashboard</h1>
-      <span class="who" id="whoLabel"></span>
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+        <h1 id="viewTitle">Dashboard</h1>
+      </div>
+      <div class="who-chip">
+        <div>
+          <div class="who-name" id="whoLabel"></div>
+          <div class="who-role">Administrator</div>
+        </div>
+        <div class="avatar" id="whoAvatar">S</div>
+      </div>
     </div>
 
-    <!-- DASHBOARD -->
-    <section class="view active" id="view-dashboard">
-      <div class="stat-grid">
-        <div class="stat-card"><div class="label">Total vehicles</div><div class="value" id="statTotalVehicles">–</div></div>
-        <div class="stat-card"><div class="label">Available now</div><div class="value" id="statAvailable">–</div></div>
-        <div class="stat-card"><div class="label">Pending requests</div><div class="value" id="statPending">–</div></div>
-        <div class="stat-card"><div class="label">Est. revenue</div><div class="value" id="statRevenue">–</div></div>
-      </div>
-      <div class="chart-grid">
-        <div class="chart-card"><h3>Requests per month</h3><canvas id="monthlyChart" height="220"></canvas></div>
-        <div class="chart-card"><h3>Fleet status</h3><canvas id="statusChart" height="220"></canvas></div>
-      </div>
-    </section>
-
-    <!-- VEHICLES -->
-    <section class="view" id="view-vehicles">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Fleet</h3>
-          <button class="btn btn-primary btn-sm" id="addVehicleBtn">+ Add vehicle</button>
-        </div>
-        <table>
-          <thead><tr><th>Vehicle</th><th>Category</th><th>Status</th><th>Daily / Monthly</th><th>Tracker IP</th><th></th></tr></thead>
-          <tbody id="vehiclesTableBody"><tr class="empty-row"><td colspan="6">Loading vehicles…</td></tr></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- REQUESTS -->
-    <section class="view" id="view-requests">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Lease &amp; rental requests</h3>
-          <div class="tabs" id="requestTabs">
-            <button class="tab active" data-status="">All</button>
-            <button class="tab" data-status="pending">Pending</button>
-            <button class="tab" data-status="approved">Approved</button>
-            <button class="tab" data-status="active">Active</button>
-            <button class="tab" data-status="completed">Completed</button>
-            <button class="tab" data-status="cancelled">Cancelled</button>
+    <div class="content">
+      <!-- DASHBOARD -->
+      <section class="view active" id="view-dashboard">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#106B4A" stroke-width="1.8"><path d="M3 13l1.5-5A2 2 0 0 1 6.4 6.5h11.2a2 2 0 0 1 1.9 1.5L21 13"/><rect x="2.5" y="13" width="19" height="6" rx="1.5"/></svg></div>
+            <div class="label">Total vehicles</div><div class="value" id="statTotalVehicles">–</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#106B4A" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9"/></svg></div>
+            <div class="label">Available now</div><div class="value" id="statAvailable">–</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#106B4A" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+            <div class="label">Pending requests</div><div class="value" id="statPending">–</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#106B4A" stroke-width="1.8"><path d="M12 2v20M17 6.5c0-1.9-2.2-3.5-5-3.5s-5 1.6-5 3.5 2.2 3 5 3.5 5 1.6 5 3.5-2.2 3.5-5 3.5-5-1.6-5-3.5"/></svg></div>
+            <div class="label">Est. revenue</div><div class="value" id="statRevenue">–</div>
           </div>
         </div>
-        <table>
-          <thead><tr><th>Customer</th><th>Vehicle</th><th>Type</th><th>Dates</th><th>Status</th><th></th></tr></thead>
-          <tbody id="requestsTableBody"><tr class="empty-row"><td colspan="6">Loading requests…</td></tr></tbody>
-        </table>
-      </div>
-    </section>
+        <div class="chart-grid">
+          <div class="chart-card"><h3>Requests per month</h3><canvas id="monthlyChart" height="220"></canvas></div>
+          <div class="chart-card"><h3>Fleet status</h3><canvas id="statusChart" height="220"></canvas></div>
+        </div>
+      </section>
+
+      <!-- VEHICLES -->
+      <section class="view" id="view-vehicles">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Fleet</h3>
+            <button class="btn btn-gold btn-sm" id="addVehicleBtn">+ Add vehicle</button>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>Vehicle</th><th>Category</th><th>Status</th><th>Daily / Monthly</th><th>Tracker IP</th><th></th></tr></thead>
+              <tbody id="vehiclesTableBody"><tr class="empty-row"><td colspan="6">Loading vehicles…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- REQUESTS -->
+      <section class="view" id="view-requests">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Lease &amp; rental requests</h3>
+            <div class="tabs" id="requestTabs">
+              <button class="tab active" data-status="">All</button>
+              <button class="tab" data-status="pending">Pending</button>
+              <button class="tab" data-status="approved">Approved</button>
+              <button class="tab" data-status="active">Active</button>
+              <button class="tab" data-status="completed">Completed</button>
+              <button class="tab" data-status="cancelled">Cancelled</button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>Customer</th><th>Vehicle</th><th>Type</th><th>Dates</th><th>Status</th><th></th></tr></thead>
+              <tbody id="requestsTableBody"><tr class="empty-row"><td colspan="6">Loading requests…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 </div>
 
@@ -299,7 +421,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn btn-outline" id="cancelVehicleBtn">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="deleteVehicleBtn" style="display:none;background:#c0392b;">Delete</button>
+        <button type="submit" class="btn btn-danger" id="deleteVehicleBtn" style="display:none;">Delete</button>
         <button type="submit" class="btn btn-primary">Save vehicle</button>
       </div>
     </form>
@@ -365,13 +487,24 @@
   function enterApp(){
     $('#loginScreen').style.display = 'none';
     $('#app').style.display = 'flex';
-    $('#whoLabel').textContent = localStorage.getItem('sidita_admin_name') || '';
+    const name = localStorage.getItem('sidita_admin_name') || '';
+    $('#whoLabel').textContent = name;
+    $('#whoAvatar').textContent = (name.trim()[0] || 'S').toUpperCase();
     loadDashboard();
     loadVehicles();
     loadRequests('');
   }
 
   if (getToken()) enterApp();
+
+  // ---------------- MOBILE SIDEBAR ----------------
+  const sidebar = $('#sidebar');
+  const overlay = $('#sidebarOverlay');
+  function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
+  function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+  $('#hamburgerBtn').addEventListener('click', openSidebar);
+  $('#sidebarCloseBtn').addEventListener('click', closeSidebar);
+  overlay.addEventListener('click', closeSidebar);
 
   // ---------------- NAV ----------------
   $$('.nav-item[data-view]').forEach((btn) => {
@@ -381,12 +514,14 @@
       const view = btn.dataset.view;
       $$('.view').forEach(v=>v.classList.remove('active'));
       $('#view-' + view).classList.add('active');
-      $('#viewTitle').textContent = btn.textContent;
+      $('#viewTitle').textContent = btn.textContent.trim();
+      closeSidebar();
     });
   });
 
   // ---------------- DASHBOARD ----------------
   let monthlyChart, statusChart;
+  const chartFont = { family: 'Inter' };
 
   async function loadDashboard(){
     try {
@@ -405,8 +540,8 @@
       if (monthlyChart) monthlyChart.destroy();
       monthlyChart = new Chart($('#monthlyChart'), {
         type:'bar',
-        data:{ labels: monthlyLabels.length?monthlyLabels:['No data yet'], datasets:[{ label:'Requests', data: monthlyValues.length?monthlyValues:[0], backgroundColor:'#1a7a5a', borderRadius:6 }] },
-        options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
+        data:{ labels: monthlyLabels.length?monthlyLabels:['No data yet'], datasets:[{ label:'Requests', data: monthlyValues.length?monthlyValues:[0], backgroundColor:'#106B4A', borderRadius:8, maxBarThickness:36 }] },
+        options:{ font: chartFont, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0, font: chartFont }, grid:{ color:'#EEF0F0' } }, x:{ ticks:{ font: chartFont }, grid:{ display:false } } } }
       });
 
       const statusLabels = Object.keys(byStatus);
@@ -414,8 +549,8 @@
       if (statusChart) statusChart.destroy();
       statusChart = new Chart($('#statusChart'), {
         type:'doughnut',
-        data:{ labels: statusLabels.length?statusLabels:['No vehicles yet'], datasets:[{ data: statusValues.length?statusValues:[1], backgroundColor:['#1a7a5a','#d4a14b','#2f4040','#c0392b'] }] },
-        options:{ plugins:{ legend:{ position:'bottom' } } }
+        data:{ labels: statusLabels.length?statusLabels:['No vehicles yet'], datasets:[{ data: statusValues.length?statusValues:[1], backgroundColor:['#106B4A','#C9A227','#54615D','#B3392C'], borderWidth:0 } ]},
+        options:{ font: chartFont, cutout:'62%', plugins:{ legend:{ position:'bottom', labels:{ font: chartFont, padding:14 } } } }
       });
     } catch (err) {
       toast('Could not load analytics: ' + err.message);
