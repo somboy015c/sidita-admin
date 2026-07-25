@@ -1,209 +1,730 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIDITA Admin — Fleet &amp; Operations Panel</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  :root{
-    --bg:#ffffff; --bg-soft:#f6f8f9; --ink:#0b1a1a; --ink-soft:#2f4040;
-    --green:#1a7a5a; --green-dark:#0e5f45; --gold:#d4a14b; --gold-light:#f3e3c4;
-    --border:rgba(0,0,0,0.08); --shadow:0 12px 30px rgba(0,0,0,0.06);
-    --radius:16px; --danger:#c0392b;
-  }
-  html,body{height:100%;}
-  body{
-    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-    background:var(--bg-soft); color:var(--ink); line-height:1.5;
-  }
-  h1,h2,h3,h4{ font-family:'Syne','Inter',sans-serif; font-weight:600; letter-spacing:-0.01em; }
-  a{ color:inherit; }
-  button{ font-family:inherit; cursor:pointer; }
-  input, select, textarea{ font-family:inherit; font-size:14px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIDITA — modern fleet · operations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  /* ---------- Login ---------- */
-  #loginScreen{
-    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
-    background: radial-gradient(circle at 20% 20%, #eef6f2 0%, var(--bg-soft) 60%);
-  }
-  .login-card{
-    background:#fff; border-radius:24px; padding:44px; width:100%; max-width:400px;
-    box-shadow:var(--shadow); border:1px solid var(--border);
-  }
-  .login-brand{ display:flex; align-items:center; gap:10px; margin-bottom:28px; }
-  .login-brand .dot{ width:12px; height:12px; border-radius:50%; background:var(--green); }
-  .login-brand span{ font-family:'Syne'; font-weight:700; font-size:19px; }
-  .login-card h2{ font-size:22px; margin-bottom:6px; }
-  .login-card p.sub{ color:var(--ink-soft); font-size:14px; margin-bottom:24px; }
-  .field{ margin-bottom:16px; }
-  .field label{ display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--ink-soft); }
-  .field input, .field select, .field textarea{
-    width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:10px;
-    outline:none; transition:0.15s;
-  }
-  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--green); }
-  .btn{
-    display:inline-flex; align-items:center; justify-content:center; gap:8px;
-    padding:13px 22px; font-weight:600; font-size:14px; border-radius:60px; border:none;
-    transition:0.2s;
-  }
-  .btn-primary{ background:var(--green); color:#fff; }
-  .btn-primary:hover{ background:var(--green-dark); }
-  .btn-outline{ background:transparent; border:1.5px solid var(--ink); color:var(--ink); }
-  .btn-outline:hover{ background:var(--ink); color:#fff; }
-  .btn-danger{ background:#fdeceb; color:var(--danger); }
-  .btn-danger:hover{ background:var(--danger); color:#fff; }
-  .btn-block{ width:100%; }
-  .btn-sm{ padding:8px 14px; font-size:13px; border-radius:40px; }
-  #loginError{ color:var(--danger); font-size:13px; margin-top:10px; display:none; }
-  #apiBaseNotice{ font-size:12px; color:var(--ink-soft); margin-top:18px; text-align:center; }
+    :root {
+      --bg: #f9fafb;
+      --surface: #ffffff;
+      --ink: #0b1a1a;
+      --ink-soft: #2b3e3e;
+      --mint: #0f7b5a;
+      --mint-dark: #0a5e44;
+      --gold: #c99a3b;
+      --gold-soft: #f5e9d4;
+      --border: rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 20px 50px -12px rgba(0, 0, 0, 0.10);
+      --radius-xl: 28px;
+      --radius-md: 16px;
+      --radius-sm: 40px;
+      --transition: all 0.25s ease;
+    }
 
-  /* ---------- App shell ---------- */
-  #app{ display:none; min-height:100vh; }
-  .sidebar{
-    width:230px; background:var(--ink); color:#fff; flex-shrink:0; padding:24px 18px;
-    display:flex; flex-direction:column; position:fixed; top:0; bottom:0; left:0;
-  }
-  .sidebar .brand{ display:flex; align-items:center; gap:10px; margin-bottom:36px; padding:0 6px; }
-  .sidebar .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--gold); }
-  .sidebar .brand span{ font-family:'Syne'; font-weight:700; font-size:17px; }
-  .sidebar nav{ display:flex; flex-direction:column; gap:4px; flex:1; }
-  .nav-item{
-    display:flex; align-items:center; gap:10px; padding:11px 14px; border-radius:10px;
-    color:rgba(255,255,255,0.7); font-size:14px; font-weight:500; background:none; border:none;
-    text-align:left; width:100%;
-  }
-  .nav-item:hover{ background:rgba(255,255,255,0.06); color:#fff; }
-  .nav-item.active{ background:var(--green); color:#fff; }
-  .sidebar .logout{ margin-top:auto; }
-  .main{ margin-left:230px; flex:1; padding:32px 40px; width:calc(100% - 230px); }
-  .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
-  .topbar h1{ font-size:24px; }
-  .topbar .who{ font-size:13px; color:var(--ink-soft); }
-  .view{ display:none; }
-  .view.active{ display:block; }
+    html, body {
+      height: 100%;
+    }
 
-  /* ---------- Dashboard ---------- */
-  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:28px; }
-  .stat-card{
-    background:#fff; border-radius:var(--radius); padding:20px; box-shadow:var(--shadow);
-    border:1px solid var(--border);
-  }
-  .stat-card .label{ font-size:12px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
-  .stat-card .value{ font-size:28px; font-family:'Syne'; font-weight:700; margin-top:6px; }
-  .chart-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:18px; }
-  .chart-card{
-    background:#fff; border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);
-    border:1px solid var(--border);
-  }
-  .chart-card h3{ font-size:15px; margin-bottom:14px; }
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
 
-  /* ---------- Tables ---------- */
-  .panel{ background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid var(--border); overflow:hidden; }
-  .panel-head{ display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:10px; }
-  .panel-head h3{ font-size:16px; }
-  .tabs{ display:flex; gap:6px; }
-  .tab{ padding:7px 14px; border-radius:30px; border:1px solid var(--border); background:transparent; font-size:13px; font-weight:500; color:var(--ink-soft); }
-  .tab.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
-  table{ width:100%; border-collapse:collapse; }
-  th, td{ text-align:left; padding:13px 22px; font-size:13.5px; border-bottom:1px solid var(--border); }
-  th{ color:var(--ink-soft); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em; background:var(--bg-soft); }
-  tr:last-child td{ border-bottom:none; }
-  .badge{ display:inline-block; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
-  .badge-available{ background:#e4f5ee; color:var(--green-dark); }
-  .badge-leased, .badge-rented{ background:var(--gold-light); color:#8a6417; }
-  .badge-maintenance{ background:#fdeceb; color:var(--danger); }
-  .badge-pending{ background:#fdf3d8; color:#8a6417; }
-  .badge-approved, .badge-active{ background:#e4f5ee; color:var(--green-dark); }
-  .badge-completed{ background:#e7ecf0; color:var(--ink-soft); }
-  .badge-cancelled{ background:#fdeceb; color:var(--danger); }
-  .row-actions{ display:flex; gap:8px; }
-  .empty-row td{ text-align:center; color:var(--ink-soft); padding:36px 22px; }
+    h1, h2, h3, h4 {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
 
-  /* ---------- Modal ---------- */
-  .modal-overlay{
-    display:none; position:fixed; inset:0; background:rgba(11,26,26,0.5); z-index:200;
-    align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto;
-  }
-  .modal-overlay.show{ display:flex; }
-  .modal{
-    background:#fff; border-radius:20px; width:100%; max-width:560px; padding:32px;
-    box-shadow:0 30px 60px rgba(0,0,0,0.2);
-  }
-  .modal h3{ font-size:19px; margin-bottom:20px; }
-  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .field.full{ grid-column:1/-1; }
-  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
-  fieldset{ border:1px dashed var(--border); border-radius:12px; padding:14px 16px; margin-top:6px; }
-  legend{ font-size:12px; font-weight:600; color:var(--ink-soft); padding:0 6px; }
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
 
-  .toast{
-    position:fixed; bottom:24px; right:24px; background:var(--ink); color:#fff; padding:14px 20px;
-    border-radius:12px; font-size:14px; box-shadow:var(--shadow); z-index:300; display:none;
-  }
-  .toast.show{ display:block; }
+    input, select, textarea {
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
 
-  @media (max-width:900px){
-    .sidebar{ display:none; }
-    .main{ margin-left:0; width:100%; padding:20px; }
-    .stat-grid{ grid-template-columns:1fr 1fr; }
-    .chart-grid{ grid-template-columns:1fr; }
-    .form-row{ grid-template-columns:1fr; }
-  }
-</style>
+    /* ----- login ----- */
+    #loginScreen {
+      width: 100%;
+      max-width: 420px;
+      padding: 1.5rem;
+    }
+
+    .login-card {
+      background: var(--surface);
+      padding: 2.5rem 2.2rem;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(2px);
+      transition: var(--transition);
+    }
+
+    .login-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .login-brand img {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .login-brand span {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--mint);
+      letter-spacing: -0.5px;
+    }
+
+    .login-card h2 {
+      font-size: 1.8rem;
+      margin-bottom: 4px;
+    }
+
+    .login-card .sub {
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #fafcfc;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: var(--mint);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(15, 123, 90, 0.08);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 28px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      transition: var(--transition);
+    }
+
+    .btn-primary {
+      background: var(--mint);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--mint-dark);
+      box-shadow: 0 8px 20px rgba(15, 123, 90, 0.2);
+      transform: scale(0.98);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+    }
+
+    .btn-outline:hover {
+      background: var(--ink);
+      color: white;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn-sm {
+      padding: 8px 18px;
+      font-size: 0.8rem;
+      border-radius: 30px;
+    }
+
+    #loginError {
+      color: #b91c1c;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      display: none;
+    }
+
+    #apiBaseNotice {
+      font-size: 0.7rem;
+      color: var(--ink-soft);
+      margin-top: 22px;
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    /* ----- app shell (glass / modern) ----- */
+    #app {
+      display: none;
+      width: 100%;
+      min-height: 100vh;
+      background: var(--bg);
+      padding: 24px 28px 28px 28px;
+      gap: 24px;
+      flex-direction: row;
+    }
+
+    /* sidebar — floating / glass */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: var(--radius-xl);
+      padding: 28px 16px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      display: flex;
+      flex-direction: column;
+      height: fit-content;
+      position: sticky;
+      top: 24px;
+      align-self: flex-start;
+    }
+
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      padding: 0 6px;
+    }
+
+    .sidebar .brand img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .sidebar .brand span {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--mint);
+    }
+
+    .sidebar nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: var(--ink-soft);
+      transition: var(--transition);
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: rgba(15, 123, 90, 0.06);
+      color: var(--mint);
+    }
+
+    .nav-item.active {
+      background: var(--mint);
+      color: white;
+      box-shadow: 0 6px 14px rgba(15, 123, 90, 0.18);
+    }
+
+    .sidebar .logout {
+      margin-top: 28px;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+      color: #7f8c8c;
+    }
+
+    .sidebar .logout:hover {
+      color: #b91c1c;
+      background: rgba(185, 28, 28, 0.04);
+    }
+
+    /* main content */
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .topbar h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .topbar .who {
+      background: white;
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+      color: var(--ink-soft);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+    }
+
+    .view {
+      display: none;
+      animation: fade 0.2s ease;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      0% { opacity: 0.4; transform: translateY(6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* cards */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 22px 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.02);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      margin-top: 6px;
+      line-height: 1.2;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 18px;
+      margin-top: 6px;
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 22px 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.02);
+    }
+
+    .chart-card h3 {
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+
+    /* panel / table */
+    .panel {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.02);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .panel-head h3 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 6px 16px;
+      border-radius: 30px;
+      border: 1px solid transparent;
+      background: transparent;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--ink-soft);
+      transition: var(--transition);
+    }
+
+    .tab.active {
+      background: var(--mint);
+      color: white;
+      border-color: var(--mint);
+    }
+
+    .tab:hover:not(.active) {
+      background: rgba(0,0,0,0.03);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 18px;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--ink-soft);
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: rgba(0,0,0,0.01);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .badge-available { background: #dff0e8; color: #0a5e44; }
+    .badge-leased, .badge-rented { background: var(--gold-soft); color: #8a6417; }
+    .badge-maintenance { background: #fee8e5; color: #b91c1c; }
+    .badge-pending { background: #fef3d7; color: #8a6417; }
+    .badge-approved, .badge-active { background: #dff0e8; color: #0a5e44; }
+    .badge-completed { background: #eef1f3; color: var(--ink-soft); }
+    .badge-cancelled { background: #fee8e5; color: #b91c1c; }
+
+    .row-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .empty-row td {
+      text-align: center;
+      color: var(--ink-soft);
+      padding: 40px 22px;
+      font-style: italic;
+    }
+
+    /* modal — clean */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 26, 26, 0.35);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 600px;
+      padding: 32px 34px;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border);
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      0% { opacity: 0.6; transform: translateY(16px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal h3 {
+      font-size: 1.4rem;
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    fieldset {
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-top: 10px;
+    }
+
+    legend {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      padding: 0 8px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--ink);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-lg);
+      z-index: 300;
+      display: none;
+      backdrop-filter: blur(4px);
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    /* responsive */
+    @media (max-width: 1000px) {
+      .stat-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      #app {
+        padding: 16px;
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 16px 20px;
+        gap: 10px;
+        backdrop-filter: blur(12px);
+      }
+      .sidebar .brand {
+        margin-bottom: 0;
+        flex: 1;
+      }
+      .sidebar nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        flex: 1;
+        gap: 4px;
+      }
+      .nav-item {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        width: auto;
+      }
+      .sidebar .logout {
+        margin-top: 0;
+        border-top: none;
+        padding-top: 0;
+      }
+      .main {
+        margin-top: 0;
+      }
+      .stat-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .modal {
+        padding: 24px 18px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+      .topbar h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ============ LOGIN ============ -->
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-card">
-    <div class="login-brand"><div class="dot"></div><span>SIDITA Admin</span></div>
-    <h2>Welcome back</h2>
-    <p class="sub">Sign in to manage the fleet and view operations.</p>
+    <div class="login-brand">
+      <!-- logo.png used as image -->
+      <img src="https://placecats.com/80/80?random=1" alt="SIDITA logo" id="logoImg">
+      <span>SIDITA</span>
+    </div>
+    <h2>welcome back</h2>
+    <p class="sub">sign in to manage the fleet & operations.</p>
     <form id="loginForm">
-      <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@sidita-rentals.com" required></div>
-      <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" required></div>
-      <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+      <div class="field"><label>email</label><input type="email" id="loginEmail" placeholder="admin@sidita.com" required></div>
+      <div class="field"><label>password</label><input type="password" id="loginPassword" placeholder="••••••••" required></div>
+      <button type="submit" class="btn btn-primary btn-block">sign in</button>
       <p id="loginError"></p>
     </form>
-    <p id="apiBaseNotice">Connecting to API — set API_BASE in index.html once your backend is deployed.</p>
+    <p id="apiBaseNotice">connecting to backend · set API_BASE</p>
   </div>
 </div>
 
-<!-- ============ APP ============ -->
+<!-- APP -->
 <div id="app">
   <aside class="sidebar">
-    <div class="brand"><div class="dot"></div><span>SIDITA Admin</span></div>
+    <div class="brand">
+      <img src="https://placecats.com/100/100?random=2" alt="SIDITA logo" id="sidebarLogo">
+      <span>SIDITA</span>
+    </div>
     <nav>
-      <button class="nav-item active" data-view="dashboard">Dashboard</button>
-      <button class="nav-item" data-view="vehicles">Vehicles</button>
-      <button class="nav-item" data-view="requests">Requests</button>
+      <button class="nav-item active" data-view="dashboard">📊 dashboard</button>
+      <button class="nav-item" data-view="vehicles">🚗 vehicles</button>
+      <button class="nav-item" data-view="requests">📋 requests</button>
     </nav>
-    <button class="nav-item logout" id="logoutBtn">Log out</button>
+    <button class="nav-item logout" id="logoutBtn">↗ log out</button>
   </aside>
 
   <main class="main">
     <div class="topbar">
-      <h1 id="viewTitle">Dashboard</h1>
+      <h1 id="viewTitle">dashboard</h1>
       <span class="who" id="whoLabel"></span>
     </div>
 
     <!-- DASHBOARD -->
     <section class="view active" id="view-dashboard">
       <div class="stat-grid">
-        <div class="stat-card"><div class="label">Total vehicles</div><div class="value" id="statTotalVehicles">–</div></div>
-        <div class="stat-card"><div class="label">Available now</div><div class="value" id="statAvailable">–</div></div>
-        <div class="stat-card"><div class="label">Pending requests</div><div class="value" id="statPending">–</div></div>
-        <div class="stat-card"><div class="label">Est. revenue</div><div class="value" id="statRevenue">–</div></div>
+        <div class="stat-card"><div class="label">total vehicles</div><div class="value" id="statTotalVehicles">–</div></div>
+        <div class="stat-card"><div class="label">available now</div><div class="value" id="statAvailable">–</div></div>
+        <div class="stat-card"><div class="label">pending requests</div><div class="value" id="statPending">–</div></div>
+        <div class="stat-card"><div class="label">est. revenue</div><div class="value" id="statRevenue">–</div></div>
       </div>
       <div class="chart-grid">
-        <div class="chart-card"><h3>Requests per month</h3><canvas id="monthlyChart" height="220"></canvas></div>
-        <div class="chart-card"><h3>Fleet status</h3><canvas id="statusChart" height="220"></canvas></div>
+        <div class="chart-card"><h3>requests per month</h3><canvas id="monthlyChart" height="200"></canvas></div>
+        <div class="chart-card"><h3>fleet status</h3><canvas id="statusChart" height="200"></canvas></div>
       </div>
     </section>
 
@@ -211,12 +732,12 @@
     <section class="view" id="view-vehicles">
       <div class="panel">
         <div class="panel-head">
-          <h3>Fleet</h3>
-          <button class="btn btn-primary btn-sm" id="addVehicleBtn">+ Add vehicle</button>
+          <h3>fleet</h3>
+          <button class="btn btn-primary btn-sm" id="addVehicleBtn">+ add vehicle</button>
         </div>
         <table>
-          <thead><tr><th>Vehicle</th><th>Category</th><th>Status</th><th>Daily / Monthly</th><th>Tracker IP</th><th></th></tr></thead>
-          <tbody id="vehiclesTableBody"><tr class="empty-row"><td colspan="6">Loading vehicles…</td></tr></tbody>
+          <thead><tr><th>vehicle</th><th>category</th><th>status</th><th>daily / monthly</th><th>tracker IP</th><th></th></tr></thead>
+          <tbody id="vehiclesTableBody"><tr class="empty-row"><td colspan="6">loading vehicles…</td></tr></tbody>
         </table>
       </div>
     </section>
@@ -225,19 +746,19 @@
     <section class="view" id="view-requests">
       <div class="panel">
         <div class="panel-head">
-          <h3>Lease &amp; rental requests</h3>
+          <h3>lease & rental requests</h3>
           <div class="tabs" id="requestTabs">
-            <button class="tab active" data-status="">All</button>
-            <button class="tab" data-status="pending">Pending</button>
-            <button class="tab" data-status="approved">Approved</button>
-            <button class="tab" data-status="active">Active</button>
-            <button class="tab" data-status="completed">Completed</button>
-            <button class="tab" data-status="cancelled">Cancelled</button>
+            <button class="tab active" data-status="">all</button>
+            <button class="tab" data-status="pending">pending</button>
+            <button class="tab" data-status="approved">approved</button>
+            <button class="tab" data-status="active">active</button>
+            <button class="tab" data-status="completed">completed</button>
+            <button class="tab" data-status="cancelled">cancelled</button>
           </div>
         </div>
         <table>
-          <thead><tr><th>Customer</th><th>Vehicle</th><th>Type</th><th>Dates</th><th>Status</th><th></th></tr></thead>
-          <tbody id="requestsTableBody"><tr class="empty-row"><td colspan="6">Loading requests…</td></tr></tbody>
+          <thead><tr><th>customer</th><th>vehicle</th><th>type</th><th>dates</th><th>status</th><th></th></tr></thead>
+          <tbody id="requestsTableBody"><tr class="empty-row"><td colspan="6">loading requests…</td></tr></tbody>
         </table>
       </div>
     </section>
@@ -247,60 +768,58 @@
 <!-- VEHICLE MODAL -->
 <div class="modal-overlay" id="vehicleModal">
   <div class="modal">
-    <h3 id="vehicleModalTitle">Add vehicle</h3>
+    <h3 id="vehicleModalTitle">add vehicle</h3>
     <form id="vehicleForm">
       <input type="hidden" id="vehicleId">
       <div class="form-row">
-        <div class="field"><label>Name</label><input type="text" id="vName" placeholder="Land Rover Defender" required></div>
-        <div class="field"><label>Brand</label><input type="text" id="vBrand" placeholder="Land Rover" required></div>
+        <div class="field"><label>name</label><input type="text" id="vName" placeholder="Defender" required></div>
+        <div class="field"><label>brand</label><input type="text" id="vBrand" placeholder="Land Rover" required></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Model year</label><input type="number" id="vYear" placeholder="2023" required></div>
-        <div class="field"><label>Category</label>
-          <select id="vCategory">
-            <option>SUV</option><option>Sedan</option><option>Truck</option><option>Van</option><option>Luxury</option><option>Compact</option>
-          </select>
+        <div class="field"><label>model year</label><input type="number" id="vYear" placeholder="2023" required></div>
+        <div class="field"><label>category</label>
+          <select id="vCategory"><option>SUV</option><option>Sedan</option><option>Truck</option><option>Van</option><option>Luxury</option><option>Compact</option></select>
         </div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Plate number</label><input type="text" id="vPlate" placeholder="ABC-123-XY"></div>
-        <div class="field"><label>VIN</label><input type="text" id="vVin" placeholder="Vehicle ID number"></div>
+        <div class="field"><label>plate</label><input type="text" id="vPlate" placeholder="ABC-123-XY"></div>
+        <div class="field"><label>VIN</label><input type="text" id="vVin" placeholder="VIN"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Status</label>
-          <select id="vStatus"><option value="available">Available</option><option value="leased">Leased</option><option value="rented">Rented</option><option value="maintenance">Maintenance</option></select>
+        <div class="field"><label>status</label>
+          <select id="vStatus"><option value="available">available</option><option value="leased">leased</option><option value="rented">rented</option><option value="maintenance">maintenance</option></select>
         </div>
-        <div class="field"><label>Seats</label><input type="number" id="vSeats" value="5"></div>
+        <div class="field"><label>seats</label><input type="number" id="vSeats" value="5"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Daily rental rate (₦)</label><input type="number" id="vDaily" placeholder="35000"></div>
-        <div class="field"><label>Monthly lease rate (₦)</label><input type="number" id="vMonthly" placeholder="450000"></div>
+        <div class="field"><label>daily (₦)</label><input type="number" id="vDaily" placeholder="35000"></div>
+        <div class="field"><label>monthly (₦)</label><input type="number" id="vMonthly" placeholder="450000"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Purchase price (₦)</label><input type="number" id="vPrice" placeholder="25000000"></div>
-        <div class="field"><label>Transmission</label>
+        <div class="field"><label>purchase (₦)</label><input type="number" id="vPrice" placeholder="25000000"></div>
+        <div class="field"><label>transmission</label>
           <select id="vTransmission"><option>Automatic</option><option>Manual</option></select>
         </div>
       </div>
-      <div class="field full"><label>Image URL</label><input type="text" id="vImage" placeholder="https://..."></div>
-      <div class="field full"><label>Description</label><textarea id="vDescription" rows="2" placeholder="Short description shown to customers"></textarea></div>
+      <div class="field full"><label>image URL</label><input type="text" id="vImage" placeholder="https://..."></div>
+      <div class="field full"><label>description</label><textarea id="vDescription" rows="2" placeholder="short description"></textarea></div>
 
       <fieldset>
-        <legend>GPS / telematics tracker</legend>
+        <legend>tracker</legend>
         <div class="form-row">
-          <div class="field"><label>Tracker device ID</label><input type="text" id="vDeviceId" placeholder="TRK-00123"></div>
-          <div class="field"><label>Tracker IP address</label><input type="text" id="vDeviceIp" placeholder="192.168.1.42"></div>
+          <div class="field"><label>device ID</label><input type="text" id="vDeviceId" placeholder="TRK-00123"></div>
+          <div class="field"><label>IP address</label><input type="text" id="vDeviceIp" placeholder="192.168.1.42"></div>
         </div>
         <div class="form-row">
-          <div class="field"><label>Last known latitude</label><input type="number" step="any" id="vLat" placeholder="6.4483"></div>
-          <div class="field"><label>Last known longitude</label><input type="number" step="any" id="vLng" placeholder="3.4720"></div>
+          <div class="field"><label>lat</label><input type="number" step="any" id="vLat" placeholder="6.4483"></div>
+          <div class="field"><label>lng</label><input type="number" step="any" id="vLng" placeholder="3.4720"></div>
         </div>
       </fieldset>
 
       <div class="modal-actions">
-        <button type="button" class="btn btn-outline" id="cancelVehicleBtn">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="deleteVehicleBtn" style="display:none;background:#c0392b;">Delete</button>
-        <button type="submit" class="btn btn-primary">Save vehicle</button>
+        <button type="button" class="btn btn-outline" id="cancelVehicleBtn">cancel</button>
+        <button type="submit" class="btn btn-primary" id="deleteVehicleBtn" style="display:none;background:#b91c1c;">delete</button>
+        <button type="submit" class="btn btn-primary">save vehicle</button>
       </div>
     </form>
   </div>
@@ -309,270 +828,273 @@
 <div class="toast" id="toast"></div>
 
 <script>
-(function(){
-  // ---------------------------------------------------------------------
-  // Set this to your deployed backend URL once it's live on Render.
-  // ---------------------------------------------------------------------
-  const API_BASE = 'https://sidita-backend.onrender.com/api';
+  (function() {
+    const API_BASE = 'https://sidita-backend.onrender.com/api';
 
-  const $ = (sel) => document.querySelector(sel);
-  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-  function getToken(){ return localStorage.getItem('sidita_admin_token'); }
-  function setToken(t){ localStorage.setItem('sidita_admin_token', t); }
-  function clearToken(){ localStorage.removeItem('sidita_admin_token'); localStorage.removeItem('sidita_admin_name'); }
+    function getToken(){ return localStorage.getItem('sidita_admin_token'); }
+    function setToken(t){ localStorage.setItem('sidita_admin_token', t); }
+    function clearToken(){ localStorage.removeItem('sidita_admin_token'); localStorage.removeItem('sidita_admin_name'); }
 
-  function toast(msg){
-    const t = $('#toast'); t.textContent = msg; t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'), 2600);
-  }
-
-  async function api(path, { method='GET', body, auth=true } = {}){
-    const headers = { 'Content-Type': 'application/json' };
-    if (auth && getToken()) headers['Authorization'] = 'Bearer ' + getToken();
-    const res = await fetch(API_BASE + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
-    let data = null;
-    try { data = await res.json(); } catch(e){ /* no body */ }
-    if (!res.ok) throw new Error((data && data.error) || 'Request failed (' + res.status + ')');
-    return data;
-  }
-
-  function fmtMoney(n){ return '₦' + Number(n || 0).toLocaleString(); }
-
-  // ---------------- LOGIN ----------------
-  $('#loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = $('#loginEmail').value.trim();
-    const password = $('#loginPassword').value;
-    $('#loginError').style.display = 'none';
-    try {
-      const data = await api('/auth/login', { method:'POST', body:{ email, password }, auth:false });
-      setToken(data.token);
-      localStorage.setItem('sidita_admin_name', data.admin.name || data.admin.email);
-      enterApp();
-    } catch (err) {
-      $('#loginError').textContent = err.message;
-      $('#loginError').style.display = 'block';
+    function toast(msg){
+      const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+      clearTimeout(t._hide); t._hide = setTimeout(()=>t.classList.remove('show'), 2600);
     }
-  });
 
-  $('#logoutBtn').addEventListener('click', () => {
-    clearToken();
-    $('#app').style.display = 'none';
-    $('#loginScreen').style.display = 'flex';
-  });
-
-  function enterApp(){
-    $('#loginScreen').style.display = 'none';
-    $('#app').style.display = 'flex';
-    $('#whoLabel').textContent = localStorage.getItem('sidita_admin_name') || '';
-    loadDashboard();
-    loadVehicles();
-    loadRequests('');
-  }
-
-  if (getToken()) enterApp();
-
-  // ---------------- NAV ----------------
-  $$('.nav-item[data-view]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      $$('.nav-item[data-view]').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      const view = btn.dataset.view;
-      $$('.view').forEach(v=>v.classList.remove('active'));
-      $('#view-' + view).classList.add('active');
-      $('#viewTitle').textContent = btn.textContent;
-    });
-  });
-
-  // ---------------- DASHBOARD ----------------
-  let monthlyChart, statusChart;
-
-  async function loadDashboard(){
-    try {
-      const data = await api('/analytics/summary');
-      const byStatus = Object.fromEntries((data.vehiclesByStatus||[]).map(s=>[s._id, s.count]));
-      $('#statTotalVehicles').textContent = data.totalVehicles;
-      $('#statAvailable').textContent = byStatus.available || 0;
-      const pending = (data.requestsByStatus||[]).find(s=>s._id==='pending');
-      $('#statPending').textContent = pending ? pending.count : 0;
-      $('#statRevenue').textContent = fmtMoney(data.estimatedRevenue);
-
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const monthlyLabels = (data.requestsPerMonth||[]).map(m=>months[m._id.month-1]+' '+m._id.year);
-      const monthlyValues = (data.requestsPerMonth||[]).map(m=>m.count);
-
-      if (monthlyChart) monthlyChart.destroy();
-      monthlyChart = new Chart($('#monthlyChart'), {
-        type:'bar',
-        data:{ labels: monthlyLabels.length?monthlyLabels:['No data yet'], datasets:[{ label:'Requests', data: monthlyValues.length?monthlyValues:[0], backgroundColor:'#1a7a5a', borderRadius:6 }] },
-        options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
-      });
-
-      const statusLabels = Object.keys(byStatus);
-      const statusValues = Object.values(byStatus);
-      if (statusChart) statusChart.destroy();
-      statusChart = new Chart($('#statusChart'), {
-        type:'doughnut',
-        data:{ labels: statusLabels.length?statusLabels:['No vehicles yet'], datasets:[{ data: statusValues.length?statusValues:[1], backgroundColor:['#1a7a5a','#d4a14b','#2f4040','#c0392b'] }] },
-        options:{ plugins:{ legend:{ position:'bottom' } } }
-      });
-    } catch (err) {
-      toast('Could not load analytics: ' + err.message);
+    async function api(path, { method='GET', body, auth=true } = {}){
+      const headers = { 'Content-Type': 'application/json' };
+      if (auth && getToken()) headers['Authorization'] = 'Bearer ' + getToken();
+      const res = await fetch(API_BASE + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+      let data = null;
+      try { data = await res.json(); } catch(e){}
+      if (!res.ok) throw new Error((data && data.error) || 'request failed');
+      return data;
     }
-  }
 
-  // ---------------- VEHICLES ----------------
-  let vehiclesCache = [];
+    function fmtMoney(n){ return '₦' + Number(n || 0).toLocaleString(); }
 
-  async function loadVehicles(){
-    try {
-      vehiclesCache = await api('/vehicles', { auth:false });
-      renderVehicles();
-    } catch (err) {
-      $('#vehiclesTableBody').innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load vehicles: ${err.message}</td></tr>`;
-    }
-  }
-
-  function renderVehicles(){
-    const body = $('#vehiclesTableBody');
-    if (!vehiclesCache.length){
-      body.innerHTML = '<tr class="empty-row"><td colspan="6">No vehicles yet — add your first one.</td></tr>';
-      return;
-    }
-    body.innerHTML = vehiclesCache.map(v => `
-      <tr>
-        <td><strong>${v.name}</strong><br><span style="color:var(--ink-soft);font-size:12.5px;">${v.brand} · ${v.modelYear}</span></td>
-        <td>${v.category}</td>
-        <td><span class="badge badge-${v.status}">${v.status}</span></td>
-        <td>${fmtMoney(v.dailyRentalRate)}/day<br>${fmtMoney(v.monthlyLeaseRate)}/mo</td>
-        <td>${(v.tracking && v.tracking.deviceIp) || '—'}</td>
-        <td class="row-actions">
-          <button class="btn btn-outline btn-sm" data-edit="${v._id}">Edit</button>
-        </td>
-      </tr>
-    `).join('');
-    $$('[data-edit]').forEach(btn => btn.addEventListener('click', () => openVehicleModal(btn.dataset.edit)));
-  }
-
-  function openVehicleModal(id){
-    const v = id ? vehiclesCache.find(x=>x._id===id) : null;
-    $('#vehicleModalTitle').textContent = v ? 'Edit vehicle' : 'Add vehicle';
-    $('#vehicleId').value = v ? v._id : '';
-    $('#vName').value = v ? v.name : '';
-    $('#vBrand').value = v ? v.brand : '';
-    $('#vYear').value = v ? v.modelYear : '';
-    $('#vCategory').value = v ? v.category : 'SUV';
-    $('#vPlate').value = v ? v.plateNumber||'' : '';
-    $('#vVin').value = v ? v.vin||'' : '';
-    $('#vStatus').value = v ? v.status : 'available';
-    $('#vSeats').value = v ? v.seats : 5;
-    $('#vDaily').value = v ? v.dailyRentalRate : '';
-    $('#vMonthly').value = v ? v.monthlyLeaseRate : '';
-    $('#vPrice').value = v ? v.purchasePrice : '';
-    $('#vTransmission').value = v ? v.transmission : 'Automatic';
-    $('#vImage').value = v && v.images && v.images[0] ? v.images[0] : '';
-    $('#vDescription').value = v ? v.description||'' : '';
-    $('#vDeviceId').value = v && v.tracking ? v.tracking.deviceId||'' : '';
-    $('#vDeviceIp').value = v && v.tracking ? v.tracking.deviceIp||'' : '';
-    $('#vLat').value = v && v.tracking && v.tracking.lastKnownLocation ? v.tracking.lastKnownLocation.lat||'' : '';
-    $('#vLng').value = v && v.tracking && v.tracking.lastKnownLocation ? v.tracking.lastKnownLocation.lng||'' : '';
-    $('#deleteVehicleBtn').style.display = v ? 'inline-flex' : 'none';
-    $('#vehicleModal').classList.add('show');
-  }
-
-  $('#addVehicleBtn').addEventListener('click', () => openVehicleModal(null));
-  $('#cancelVehicleBtn').addEventListener('click', () => $('#vehicleModal').classList.remove('show'));
-
-  $('#vehicleForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const submitter = e.submitter;
-    const id = $('#vehicleId').value;
-
-    if (submitter && submitter.id === 'deleteVehicleBtn'){
-      if (!confirm('Delete this vehicle? This cannot be undone.')) return;
+    // ----- LOGIN -----
+    $('#loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = $('#loginEmail').value.trim();
+      const password = $('#loginPassword').value;
+      $('#loginError').style.display = 'none';
       try {
-        await api('/vehicles/' + id, { method:'DELETE' });
-        toast('Vehicle deleted');
+        const data = await api('/auth/login', { method:'POST', body:{ email, password }, auth:false });
+        setToken(data.token);
+        localStorage.setItem('sidita_admin_name', data.admin.name || data.admin.email);
+        enterApp();
+      } catch (err) {
+        $('#loginError').textContent = err.message;
+        $('#loginError').style.display = 'block';
+      }
+    });
+
+    $('#logoutBtn').addEventListener('click', () => {
+      clearToken();
+      $('#app').style.display = 'none';
+      $('#loginScreen').style.display = 'flex';
+    });
+
+    function enterApp(){
+      $('#loginScreen').style.display = 'none';
+      $('#app').style.display = 'flex';
+      $('#whoLabel').textContent = localStorage.getItem('sidita_admin_name') || '';
+      loadDashboard();
+      loadVehicles();
+      loadRequests('');
+    }
+
+    if (getToken()) enterApp();
+
+    // navigation
+    $$('.nav-item[data-view]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $$('.nav-item[data-view]').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.view;
+        $$('.view').forEach(v=>v.classList.remove('active'));
+        $('#view-'+view).classList.add('active');
+        $('#viewTitle').textContent = view;
+      });
+    });
+
+    // ----- DASHBOARD -----
+    let monthlyChart, statusChart;
+
+    async function loadDashboard(){
+      try {
+        const data = await api('/analytics/summary');
+        const byStatus = Object.fromEntries((data.vehiclesByStatus||[]).map(s=>[s._id, s.count]));
+        $('#statTotalVehicles').textContent = data.totalVehicles;
+        $('#statAvailable').textContent = byStatus.available || 0;
+        const pending = (data.requestsByStatus||[]).find(s=>s._id==='pending');
+        $('#statPending').textContent = pending ? pending.count : 0;
+        $('#statRevenue').textContent = fmtMoney(data.estimatedRevenue);
+
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const monthlyLabels = (data.requestsPerMonth||[]).map(m=>months[m._id.month-1]+' '+m._id.year);
+        const monthlyValues = (data.requestsPerMonth||[]).map(m=>m.count);
+
+        if (monthlyChart) monthlyChart.destroy();
+        monthlyChart = new Chart($('#monthlyChart'), {
+          type:'bar',
+          data:{ labels: monthlyLabels.length?monthlyLabels:['no data'], datasets:[{ label:'requests', data: monthlyValues.length?monthlyValues:[0], backgroundColor:'#0f7b5a', borderRadius:8 }] },
+          options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
+        });
+
+        const statusLabels = Object.keys(byStatus);
+        const statusValues = Object.values(byStatus);
+        if (statusChart) statusChart.destroy();
+        statusChart = new Chart($('#statusChart'), {
+          type:'doughnut',
+          data:{ labels: statusLabels.length?statusLabels:['no vehicles'], datasets:[{ data: statusValues.length?statusValues:[1], backgroundColor:['#0f7b5a','#c99a3b','#2b3e3e','#b91c1c'] }] },
+          options:{ plugins:{ legend:{ position:'bottom' } } }
+        });
+      } catch (err) {
+        toast('analytics error: ' + err.message);
+      }
+    }
+
+    // ----- VEHICLES -----
+    let vehiclesCache = [];
+
+    async function loadVehicles(){
+      try {
+        vehiclesCache = await api('/vehicles', { auth:false });
+        renderVehicles();
+      } catch (err) {
+        $('#vehiclesTableBody').innerHTML = `<tr class="empty-row"><td colspan="6">couldn't load vehicles: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderVehicles(){
+      const body = $('#vehiclesTableBody');
+      if (!vehiclesCache.length){
+        body.innerHTML = '<tr class="empty-row"><td colspan="6">no vehicles yet — add your first.</td></tr>';
+        return;
+      }
+      body.innerHTML = vehiclesCache.map(v => `
+        <tr>
+          <td><strong>${v.name}</strong><br><span style="color:var(--ink-soft);font-size:0.75rem;">${v.brand} · ${v.modelYear}</span></td>
+          <td>${v.category}</td>
+          <td><span class="badge badge-${v.status}">${v.status}</span></td>
+          <td>${fmtMoney(v.dailyRentalRate)}/day<br>${fmtMoney(v.monthlyLeaseRate)}/mo</td>
+          <td>${(v.tracking && v.tracking.deviceIp) || '—'}</td>
+          <td class="row-actions">
+            <button class="btn btn-outline btn-sm" data-edit="${v._id}">edit</button>
+          </td>
+        </tr>
+      `).join('');
+      $$('[data-edit]').forEach(btn => btn.addEventListener('click', () => openVehicleModal(btn.dataset.edit)));
+    }
+
+    function openVehicleModal(id){
+      const v = id ? vehiclesCache.find(x=>x._id===id) : null;
+      $('#vehicleModalTitle').textContent = v ? 'edit vehicle' : 'add vehicle';
+      $('#vehicleId').value = v ? v._id : '';
+      $('#vName').value = v ? v.name : '';
+      $('#vBrand').value = v ? v.brand : '';
+      $('#vYear').value = v ? v.modelYear : '';
+      $('#vCategory').value = v ? v.category : 'SUV';
+      $('#vPlate').value = v ? v.plateNumber||'' : '';
+      $('#vVin').value = v ? v.vin||'' : '';
+      $('#vStatus').value = v ? v.status : 'available';
+      $('#vSeats').value = v ? v.seats : 5;
+      $('#vDaily').value = v ? v.dailyRentalRate : '';
+      $('#vMonthly').value = v ? v.monthlyLeaseRate : '';
+      $('#vPrice').value = v ? v.purchasePrice : '';
+      $('#vTransmission').value = v ? v.transmission : 'Automatic';
+      $('#vImage').value = v && v.images && v.images[0] ? v.images[0] : '';
+      $('#vDescription').value = v ? v.description||'' : '';
+      $('#vDeviceId').value = v && v.tracking ? v.tracking.deviceId||'' : '';
+      $('#vDeviceIp').value = v && v.tracking ? v.tracking.deviceIp||'' : '';
+      $('#vLat').value = v && v.tracking && v.tracking.lastKnownLocation ? v.tracking.lastKnownLocation.lat||'' : '';
+      $('#vLng').value = v && v.tracking && v.tracking.lastKnownLocation ? v.tracking.lastKnownLocation.lng||'' : '';
+      $('#deleteVehicleBtn').style.display = v ? 'inline-flex' : 'none';
+      $('#vehicleModal').classList.add('show');
+    }
+
+    $('#addVehicleBtn').addEventListener('click', () => openVehicleModal(null));
+    $('#cancelVehicleBtn').addEventListener('click', () => $('#vehicleModal').classList.remove('show'));
+
+    $('#vehicleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitter = e.submitter;
+      const id = $('#vehicleId').value;
+
+      if (submitter && submitter.id === 'deleteVehicleBtn'){
+        if (!confirm('delete vehicle?')) return;
+        try {
+          await api('/vehicles/' + id, { method:'DELETE' });
+          toast('vehicle deleted');
+          $('#vehicleModal').classList.remove('show');
+          loadVehicles(); loadDashboard();
+        } catch (err) { toast('error: ' + err.message); }
+        return;
+      }
+
+      const payload = {
+        name: $('#vName').value, brand: $('#vBrand').value, modelYear: Number($('#vYear').value),
+        category: $('#vCategory').value, plateNumber: $('#vPlate').value, vin: $('#vVin').value,
+        status: $('#vStatus').value, seats: Number($('#vSeats').value),
+        dailyRentalRate: Number($('#vDaily').value)||0, monthlyLeaseRate: Number($('#vMonthly').value)||0,
+        purchasePrice: Number($('#vPrice').value)||0, transmission: $('#vTransmission').value,
+        images: $('#vImage').value ? [$('#vImage').value] : [], description: $('#vDescription').value,
+        tracking: {
+          deviceId: $('#vDeviceId').value, deviceIp: $('#vDeviceIp').value,
+          lastKnownLocation: { lat: Number($('#vLat').value)||undefined, lng: Number($('#vLng').value)||undefined }
+        }
+      };
+
+      try {
+        if (id) await api('/vehicles/' + id, { method:'PUT', body: payload });
+        else await api('/vehicles', { method:'POST', body: payload });
+        toast('vehicle saved');
         $('#vehicleModal').classList.remove('show');
         loadVehicles(); loadDashboard();
-      } catch (err) { toast('Error: ' + err.message); }
-      return;
-    }
-
-    const payload = {
-      name: $('#vName').value, brand: $('#vBrand').value, modelYear: Number($('#vYear').value),
-      category: $('#vCategory').value, plateNumber: $('#vPlate').value, vin: $('#vVin').value,
-      status: $('#vStatus').value, seats: Number($('#vSeats').value),
-      dailyRentalRate: Number($('#vDaily').value)||0, monthlyLeaseRate: Number($('#vMonthly').value)||0,
-      purchasePrice: Number($('#vPrice').value)||0, transmission: $('#vTransmission').value,
-      images: $('#vImage').value ? [$('#vImage').value] : [], description: $('#vDescription').value,
-      tracking: {
-        deviceId: $('#vDeviceId').value, deviceIp: $('#vDeviceIp').value,
-        lastKnownLocation: { lat: Number($('#vLat').value)||undefined, lng: Number($('#vLng').value)||undefined }
-      }
-    };
-
-    try {
-      if (id) await api('/vehicles/' + id, { method:'PUT', body: payload });
-      else await api('/vehicles', { method:'POST', body: payload });
-      toast('Vehicle saved');
-      $('#vehicleModal').classList.remove('show');
-      loadVehicles(); loadDashboard();
-    } catch (err) { toast('Error: ' + err.message); }
-  });
-
-  // ---------------- REQUESTS ----------------
-  async function loadRequests(status){
-    try {
-      const path = status ? `/leases?status=${status}` : '/leases';
-      const data = await api(path);
-      renderRequests(data);
-    } catch (err) {
-      $('#requestsTableBody').innerHTML = `<tr class="empty-row"><td colspan="6">Couldn't load requests: ${err.message}</td></tr>`;
-    }
-  }
-
-  function renderRequests(list){
-    const body = $('#requestsTableBody');
-    if (!list.length){
-      body.innerHTML = '<tr class="empty-row"><td colspan="6">No requests in this filter yet.</td></tr>';
-      return;
-    }
-    body.innerHTML = list.map(r => `
-      <tr>
-        <td><strong>${r.customerName}</strong><br><span style="color:var(--ink-soft);font-size:12.5px;">${r.customerEmail}</span></td>
-        <td>${r.vehicle ? r.vehicle.name : '—'}</td>
-        <td style="text-transform:capitalize;">${r.type}</td>
-        <td>${r.startDate ? new Date(r.startDate).toLocaleDateString() : '—'}${r.endDate ? ' → ' + new Date(r.endDate).toLocaleDateString() : ''}</td>
-        <td><span class="badge badge-${r.status}">${r.status}</span></td>
-        <td>
-          <select data-status-for="${r._id}" class="tab" style="border-radius:8px;">
-            ${['pending','approved','active','completed','cancelled'].map(s=>`<option value="${s}" ${s===r.status?'selected':''}>${s}</option>`).join('')}
-          </select>
-        </td>
-      </tr>
-    `).join('');
-    $$('[data-status-for]').forEach(sel => sel.addEventListener('change', async () => {
-      try {
-        await api('/leases/' + sel.dataset.statusFor, { method:'PUT', body:{ status: sel.value } });
-        toast('Request updated');
-        loadDashboard();
-        loadRequests(currentRequestFilter);
-      } catch (err) { toast('Error: ' + err.message); }
-    }));
-  }
-
-  let currentRequestFilter = '';
-  $$('#requestTabs .tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      $$('#requestTabs .tab').forEach(t=>t.classList.remove('active'));
-      tab.classList.add('active');
-      currentRequestFilter = tab.dataset.status;
-      loadRequests(currentRequestFilter);
+      } catch (err) { toast('error: ' + err.message); }
     });
-  });
-})();
+
+    // ----- REQUESTS -----
+    async function loadRequests(status){
+      try {
+        const path = status ? `/leases?status=${status}` : '/leases';
+        const data = await api(path);
+        renderRequests(data);
+      } catch (err) {
+        $('#requestsTableBody').innerHTML = `<tr class="empty-row"><td colspan="6">couldn't load requests: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderRequests(list){
+      const body = $('#requestsTableBody');
+      if (!list.length){
+        body.innerHTML = '<tr class="empty-row"><td colspan="6">no requests in this filter.</td></tr>';
+        return;
+      }
+      body.innerHTML = list.map(r => `
+        <tr>
+          <td><strong>${r.customerName}</strong><br><span style="color:var(--ink-soft);font-size:0.75rem;">${r.customerEmail}</span></td>
+          <td>${r.vehicle ? r.vehicle.name : '—'}</td>
+          <td style="text-transform:capitalize;">${r.type}</td>
+          <td>${r.startDate ? new Date(r.startDate).toLocaleDateString() : '—'}${r.endDate ? ' → ' + new Date(r.endDate).toLocaleDateString() : ''}</td>
+          <td><span class="badge badge-${r.status}">${r.status}</span></td>
+          <td>
+            <select data-status-for="${r._id}" style="border-radius:30px;padding:4px 10px;border:1px solid var(--border);background:white;font-size:0.75rem;">
+              ${['pending','approved','active','completed','cancelled'].map(s=>`<option value="${s}" ${s===r.status?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </td>
+        </tr>
+      `).join('');
+      $$('[data-status-for]').forEach(sel => sel.addEventListener('change', async () => {
+        try {
+          await api('/leases/' + sel.dataset.statusFor, { method:'PUT', body:{ status: sel.value } });
+          toast('request updated');
+          loadDashboard();
+          loadRequests(currentRequestFilter);
+        } catch (err) { toast('error: ' + err.message); }
+      }));
+    }
+
+    let currentRequestFilter = '';
+    $$('#requestTabs .tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        $$('#requestTabs .tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        currentRequestFilter = tab.dataset.status;
+        loadRequests(currentRequestFilter);
+      });
+    });
+
+    // replace placeholder images with logo.png (mock – we use placeholder cats, but you replace with actual logo)
+    // In production, set src to your logo.png
+    const logoUrl = 'https://placecats.com/120/120?random=3'; // <-- replace with your logo.png
+    $$('#logoImg, #sidebarLogo').forEach(img => img.src = logoUrl);
+
+  })();
 </script>
 </body>
 </html>
