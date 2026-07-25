@@ -6,6 +6,9 @@
   <title>SIDITA - Fleet Management System</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+  <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+
   <style>
         :root {
             --primary: #004E2B;
@@ -670,8 +673,7 @@
 <!-- Login Screen -->
 <div id="loginScreen" class="login-container">
     <div class="login-card">
-        <h1 style="color: var(--primary); font-size: 2rem; margin-top: 10px;">SIDITA</h1>
-        <p class="login-subtitle" style="padding-bottom: 15px;">modern fleet &amp; operations management</p>
+        <img src="logo.png" alt="SIDITA" style="width: 160px; margin: 10px 0px 25px 0px;">
 
         <form id="loginForm">
             <div class="form-group">
@@ -703,7 +705,7 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
-                    <h2 style="color:white; letter-spacing:-0.5px;">SIDITA</h2>
+                    <div style="background:white; border-radius:12px; padding:8px 10px; display:inline-block;"><img src="logo_white.png" alt="SIDITA" style="width: 130px; display:block;"></div>
                 </div>
             </div>
 
@@ -888,41 +890,49 @@
 
     function fmtMoney(n){ return '\u20A6' + Number(n || 0).toLocaleString(); }
 
+    // ----- SPINNER -----
+    function showSpinner(){ $('#loadingSpinner').classList.remove('hidden'); }
+    function hideSpinner(){ $('#loadingSpinner').classList.add('hidden'); }
+
     // ----- LOGIN -----
     $('#loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = $('#loginEmail').value.trim();
         const password = $('#loginPassword').value;
         $('#loginError').style.display = 'none';
+        showSpinner();
         try {
             const data = await api('/auth/login', { method:'POST', body:{ email, password }, auth:false });
             setToken(data.token);
             localStorage.setItem('sidita_admin_name', data.admin.name || data.admin.email);
-            enterApp();
+            location.reload();
         } catch (err) {
+            hideSpinner();
             $('#loginError').textContent = err.message;
             $('#loginError').style.display = 'block';
         }
     });
 
     $('#logoutBtn').addEventListener('click', () => {
+        showSpinner();
         clearToken();
-        $('#appContainer').classList.add('hidden');
-        $('#loginScreen').classList.remove('hidden');
+        location.reload();
     });
 
-    function enterApp(){
+    async function enterApp(){
         $('#loginScreen').classList.add('hidden');
         $('#appContainer').classList.remove('hidden');
         $('#sidebarUserName').textContent = localStorage.getItem('sidita_admin_name') || 'Admin';
         $('#whoLabelText').textContent = localStorage.getItem('sidita_admin_name') || '';
-        loadDashboard();
-        loadVehicles();
-        loadRequests('');
+        showSpinner();
+        try {
+            await Promise.all([ loadDashboard(), loadVehicles(), loadRequests('') ]);
+        } finally {
+            hideSpinner();
+        }
     }
 
-    if (getToken()) { enterApp(); }
-    $('#loadingSpinner').classList.add('hidden');
+    if (getToken()) { enterApp(); } else { hideSpinner(); }
 
     // navigation
     $$('.nav-item[data-page]').forEach(btn => {
@@ -1059,13 +1069,15 @@
             showNotification('Name, brand, and model year are required', 'error');
             return;
         }
+        showSpinner();
         try {
             if (id) await api('/vehicles/' + id, { method:'PUT', body: payload });
             else await api('/vehicles', { method:'POST', body: payload });
             showNotification('Vehicle saved', 'success');
             closeVehicleModal();
-            loadVehicles(); loadDashboard();
+            await Promise.all([ loadVehicles(), loadDashboard() ]);
         } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        finally { hideSpinner(); }
     }
     window.saveVehicle = saveVehicle;
 
@@ -1073,12 +1085,14 @@
         const id = $('#vehicleId').value;
         if (!id) return;
         if (!confirm('Delete this vehicle?')) return;
+        showSpinner();
         try {
             await api('/vehicles/' + id, { method:'DELETE' });
             showNotification('Vehicle deleted', 'success');
             closeVehicleModal();
-            loadVehicles(); loadDashboard();
+            await Promise.all([ loadVehicles(), loadDashboard() ]);
         } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        finally { hideSpinner(); }
     }
     window.deleteVehicle = deleteVehicle;
 
@@ -1121,22 +1135,25 @@
             </tr>
         `).join('');
         $$('[data-status-for]').forEach(sel => sel.addEventListener('change', async () => {
+            showSpinner();
             try {
                 await api('/leases/' + sel.dataset.statusFor, { method:'PUT', body:{ status: sel.value } });
                 showNotification('Request updated', 'success');
-                loadDashboard();
-                loadRequests(currentRequestFilter);
+                await Promise.all([ loadDashboard(), loadRequests(currentRequestFilter) ]);
             } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+            finally { hideSpinner(); }
         }));
     }
 
     let currentRequestFilter = '';
     $$('#requestTabs .tab-btn').forEach(tab => {
-        tab.addEventListener('click', () => {
+        tab.addEventListener('click', async () => {
             $$('#requestTabs .tab-btn').forEach(t=>t.classList.remove('active'));
             tab.classList.add('active');
             currentRequestFilter = tab.dataset.status;
-            loadRequests(currentRequestFilter);
+            showSpinner();
+            try { await loadRequests(currentRequestFilter); }
+            finally { hideSpinner(); }
         });
     });
 
