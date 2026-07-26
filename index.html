@@ -713,6 +713,8 @@
                 <div class="nav-item active" data-page="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
                 <div class="nav-item" data-page="vehicles"><i class="fas fa-car"></i><span>Vehicles</span></div>
                 <div class="nav-item" data-page="requests"><i class="fas fa-clipboard-list"></i><span>Requests</span></div>
+                <div class="nav-item" data-page="admins"><i class="fas fa-users-cog"></i><span>Admins</span></div>
+                <div class="nav-item" data-page="settings"><i class="fas fa-cog"></i><span>Settings</span></div>
             </div>
 
             <div class="sidebar-footer">
@@ -799,6 +801,126 @@
                 </div>
             </div>
 
+            <!-- ADMINS PAGE -->
+            <div class="page" id="page-admins" style="display:none;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-users-cog"></i> Admin Team</div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary btn-sm" id="addAdminBtn"><i class="fas fa-user-plus"></i> Add Admin</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="data-table" id="adminsTable">
+                                <thead><th>Name</th><th>Email</th><th>Role</th><th>Last login</th><th>Actions</th></thead>
+                                <tbody id="adminsTableBody"><tr><td colspan="5" style="text-align:center; padding:30px; color:var(--muted);">loading admins&hellip;</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS PAGE -->
+            <div class="page" id="page-settings" style="display:none;">
+                <div class="profile-header">
+                    <div class="profile-avatar-placeholder"><i class="fas fa-user-circle"></i></div>
+                    <div class="profile-name" id="settingsName">&nbsp;</div>
+                    <span class="profile-badge" id="settingsRole">&nbsp;</span>
+                </div>
+
+                <div class="dashboard-cards-grid">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-id-badge"></i> My Profile</div></div>
+                        <div class="card-body">
+                            <div class="info-section">
+                                <div class="info-grid">
+                                    <div class="info-item"><span class="info-label">Email</span><span class="info-value" id="settingsEmail">&mdash;</span></div>
+                                    <div class="info-item"><span class="info-label">Role</span><span class="info-value" id="settingsRoleValue">&mdash;</span></div>
+                                    <div class="info-item"><span class="info-label">Account created</span><span class="info-value" id="settingsCreated">&mdash;</span></div>
+                                    <div class="info-item"><span class="info-label">Last login</span><span class="info-value" id="settingsLastLogin">&mdash;</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-key"></i> Change Password</div></div>
+                        <div class="card-body">
+                            <form id="changePasswordForm">
+                                <div class="form-group"><label class="form-label">Current password</label><input type="password" id="cpCurrent" class="form-control" style="padding-left:15px;" required></div>
+                                <div class="form-group"><label class="form-label">New password</label><input type="password" id="cpNew" class="form-control" style="padding-left:15px;" minlength="8" required></div>
+                                <div class="form-group"><label class="form-label">Confirm new password</label><input type="password" id="cpConfirm" class="form-control" style="padding-left:15px;" minlength="8" required></div>
+                                <p id="changePasswordError" style="color:#dc3545; font-size:0.85rem; margin-bottom:12px; display:none;"></p>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update password</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-coins"></i> Currency</div></div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Default currency</label>
+                                <select id="settingsCurrencySelect" class="form-control" style="padding-left:15px;">
+                                    <option value="NGN|₦">Nigerian Naira (₦)</option>
+                                    <option value="USD|$">US Dollar ($)</option>
+                                    <option value="EUR|€">Euro (€)</option>
+                                    <option value="GBP|£">British Pound (£)</option>
+                                    <option value="GHS|GH₵">Ghanaian Cedi (GH₵)</option>
+                                    <option value="KES|KSh">Kenyan Shilling (KSh)</option>
+                                    <option value="ZAR|R">South African Rand (R)</option>
+                                </select>
+                            </div>
+                            <p style="color:var(--muted); font-size:0.8rem; margin-bottom:14px;">Applies to prices shown across the admin panel and the customer site.</p>
+                            <button class="btn btn-primary btn-sm" id="saveCurrencyBtn" type="button"><i class="fas fa-save"></i> Save currency</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="grid-column: 1/-1;">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-list-ul"></i> Vehicle Dropdown Options</div></div>
+                        <div class="card-body">
+                            <p style="color:var(--muted); font-size:0.85rem; margin-bottom:18px;">Manage the options shown in the vehicle form's dropdowns, so your team picks from a consistent list instead of typing free text.</p>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Categories</label>
+                                    <div class="selected-tags" id="catList"></div>
+                                    <div style="display:flex; gap:8px;">
+                                        <input type="text" id="catNewInput" class="form-control" style="padding-left:15px;" placeholder="Add category">
+                                        <button class="btn btn-secondary btn-sm" id="catAddBtn" type="button"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Brands</label>
+                                    <div class="selected-tags" id="brandList"></div>
+                                    <div style="display:flex; gap:8px;">
+                                        <input type="text" id="brandNewInput" class="form-control" style="padding-left:15px;" placeholder="Add brand">
+                                        <button class="btn btn-secondary btn-sm" id="brandAddBtn" type="button"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Fuel Types</label>
+                                    <div class="selected-tags" id="fuelList"></div>
+                                    <div style="display:flex; gap:8px;">
+                                        <input type="text" id="fuelNewInput" class="form-control" style="padding-left:15px;" placeholder="Add fuel type">
+                                        <button class="btn btn-secondary btn-sm" id="fuelAddBtn" type="button"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Transmission Types</label>
+                                    <div class="selected-tags" id="transList"></div>
+                                    <div style="display:flex; gap:8px;">
+                                        <input type="text" id="transNewInput" class="form-control" style="padding-left:15px;" placeholder="Add transmission type">
+                                        <button class="btn btn-secondary btn-sm" id="transAddBtn" type="button"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="saveVehicleOptionsBtn" type="button" style="margin-top:10px;"><i class="fas fa-save"></i> Save vehicle options</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <footer class="app-footer">
                 <p>SIDITA &copy; 2026 Fleet Operations. All rights reserved.</p>
             </footer>
@@ -818,10 +940,16 @@
                 <input type="hidden" id="vehicleId">
                 <div class="form-grid">
                     <div class="form-group"><label class="form-label">Name *</label><input type="text" id="vName" class="form-control" placeholder="Defender" required></div>
-                    <div class="form-group"><label class="form-label">Brand *</label><input type="text" id="vBrand" class="form-control" placeholder="Land Rover" required></div>
+                    <div class="form-group">
+                        <label class="form-label">Brand *</label>
+                        <select id="vBrand" class="form-control"></select>
+                        <input type="text" id="vBrandOther" class="form-control" placeholder="Type brand name" style="margin-top:8px; display:none;">
+                    </div>
                     <div class="form-group"><label class="form-label">Model Year *</label><input type="number" id="vYear" class="form-control" placeholder="2023" required></div>
-                    <div class="form-group"><label class="form-label">Category</label>
-                        <select id="vCategory" class="form-control"><option>SUV</option><option>Sedan</option><option>Truck</option><option>Van</option><option>Luxury</option><option>Compact</option></select>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select id="vCategory" class="form-control"></select>
+                        <input type="text" id="vCategoryOther" class="form-control" placeholder="Type category" style="margin-top:8px; display:none;">
                     </div>
                     <div class="form-group"><label class="form-label">Plate Number</label><input type="text" id="vPlate" class="form-control" placeholder="ABC-123-XY"></div>
                     <div class="form-group"><label class="form-label">VIN</label><input type="text" id="vVin" class="form-control" placeholder="VIN"></div>
@@ -829,11 +957,17 @@
                         <select id="vStatus" class="form-control"><option value="available">Available</option><option value="leased">Leased</option><option value="rented">Rented</option><option value="maintenance">Maintenance</option></select>
                     </div>
                     <div class="form-group"><label class="form-label">Seats</label><input type="number" id="vSeats" class="form-control" value="5"></div>
-                    <div class="form-group"><label class="form-label">Daily Rate (₦)</label><input type="number" id="vDaily" class="form-control" placeholder="35000"></div>
-                    <div class="form-group"><label class="form-label">Monthly Rate (₦)</label><input type="number" id="vMonthly" class="form-control" placeholder="450000"></div>
-                    <div class="form-group"><label class="form-label">Purchase Price (₦)</label><input type="number" id="vPrice" class="form-control" placeholder="25000000"></div>
-                    <div class="form-group"><label class="form-label">Transmission</label>
-                        <select id="vTransmission" class="form-control"><option>Automatic</option><option>Manual</option></select>
+                    <div class="form-group"><label class="form-label">Daily Rate (<span class="currency-label">₦</span>)</label><input type="number" id="vDaily" class="form-control" placeholder="35000"></div>
+                    <div class="form-group"><label class="form-label">Monthly Rate (<span class="currency-label">₦</span>)</label><input type="number" id="vMonthly" class="form-control" placeholder="450000"></div>
+                    <div class="form-group"><label class="form-label">Purchase Price (<span class="currency-label">₦</span>)</label><input type="number" id="vPrice" class="form-control" placeholder="25000000"></div>
+                    <div class="form-group">
+                        <label class="form-label">Transmission</label>
+                        <select id="vTransmission" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fuel Type</label>
+                        <select id="vFuelType" class="form-control"></select>
+                        <input type="text" id="vFuelTypeOther" class="form-control" placeholder="Type fuel type" style="margin-top:8px; display:none;">
                     </div>
                     <div class="form-group" style="grid-column: 1/-1;"><label class="form-label">Image URL</label><input type="text" id="vImage" class="form-control" placeholder="https://..."></div>
                     <div class="form-group" style="grid-column: 1/-1;"><label class="form-label">Description</label><textarea id="vDescription" class="form-control" rows="2" placeholder="short description"></textarea></div>
@@ -856,6 +990,54 @@
     </div>
 </div>
 
+<!-- ADD ADMIN MODAL -->
+<div id="adminModal" class="modal-overlay">
+    <div class="modal" style="max-width: 480px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-plus"></i> Add Admin</h3>
+            <button class="modal-close" onclick="closeAdminModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="adminForm">
+                <div class="form-group"><label class="form-label">Full name</label><input type="text" id="aName" class="form-control" style="padding-left:15px;" placeholder="Jane Doe" required></div>
+                <div class="form-group"><label class="form-label">Email</label><input type="email" id="aEmail" class="form-control" style="padding-left:15px;" placeholder="jane@sidita-rentals.com" required></div>
+                <div class="form-group"><label class="form-label">Temporary password</label><input type="password" id="aPassword" class="form-control" style="padding-left:15px;" placeholder="At least 8 characters" minlength="8" required></div>
+                <div class="form-group"><label class="form-label">Role</label>
+                    <select id="aRole" class="form-control" style="padding-left:15px;">
+                        <option value="admin">Admin</option>
+                        <option value="owner">Owner</option>
+                    </select>
+                </div>
+                <p id="adminFormError" style="color:#dc3545; font-size:0.85rem; display:none;"></p>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeAdminModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveAdmin()"><i class="fas fa-save"></i> Create admin</button>
+        </div>
+    </div>
+</div>
+
+<!-- RESET PASSWORD RESULT MODAL -->
+<div id="resetPasswordResultModal" class="modal-overlay">
+    <div class="modal" style="max-width: 420px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-key"></i> Password Reset</h3>
+            <button class="modal-close" onclick="closeResetResultModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:14px; color:var(--muted); font-size:0.9rem;">Share this temporary password with <strong id="resetResultName"></strong> securely &mdash; it will not be shown again. They should change it right after signing in.</p>
+            <div class="pairing-card">
+                <div class="pairing-code" id="resetResultPassword">&mdash;</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="copyResetPasswordBtn" type="button" style="width:100%;"><i class="fas fa-copy"></i> Copy to clipboard</button>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="closeResetResultModal()">Done</button>
+        </div>
+    </div>
+</div>
+
 <div id="notificationContainer"></div>
 
 <script>
@@ -868,6 +1050,12 @@
     function getToken(){ return localStorage.getItem('sidita_admin_token'); }
     function setToken(t){ localStorage.setItem('sidita_admin_token', t); }
     function clearToken(){ localStorage.removeItem('sidita_admin_token'); localStorage.removeItem('sidita_admin_name'); }
+
+    function forceLogout(message){
+        clearToken();
+        showNotification(message || 'Please sign in again.', 'warning');
+        setTimeout(() => location.reload(), 900);
+    }
 
     function showNotification(msg, type) {
         type = type || 'info';
@@ -884,11 +1072,22 @@
         const res = await fetch(API_BASE + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
         let data = null;
         try { data = await res.json(); } catch(e){}
-        if (!res.ok) throw new Error((data && data.error) || 'request failed');
+        if (!res.ok) {
+            if (auth && res.status === 401) {
+                forceLogout((data && data.error) || 'Your session has expired — please sign in again.');
+            }
+            throw new Error((data && data.error) || 'request failed');
+        }
         return data;
     }
 
-    function fmtMoney(n){ return '\u20A6' + Number(n || 0).toLocaleString(); }
+    // ----- SETTINGS (dynamic dropdowns + currency) -----
+    let appSettings = {
+        vehicleCategories: [], vehicleBrands: [], fuelTypes: [], transmissionTypes: [],
+        currency: { code: 'NGN', symbol: '₦' }
+    };
+
+    function fmtMoney(n){ return (appSettings.currency && appSettings.currency.symbol || '\u20A6') + Number(n || 0).toLocaleString(); }
 
     // ----- SPINNER -----
     function showSpinner(){ $('#loadingSpinner').classList.remove('hidden'); }
@@ -919,6 +1118,8 @@
         location.reload();
     });
 
+    let currentAdmin = null;
+
     async function enterApp(){
         $('#loginScreen').classList.add('hidden');
         $('#appContainer').classList.remove('hidden');
@@ -926,7 +1127,7 @@
         $('#whoLabelText').textContent = localStorage.getItem('sidita_admin_name') || '';
         showSpinner();
         try {
-            await Promise.all([ loadDashboard(), loadVehicles(), loadRequests('') ]);
+            await Promise.all([ loadDashboard(), loadVehicles(), loadRequests(''), loadProfile(), loadAdmins(), loadSettings() ]);
         } finally {
             hideSpinner();
         }
@@ -940,7 +1141,7 @@
             $$('.nav-item[data-page]').forEach(b=>b.classList.remove('active'));
             btn.classList.add('active');
             const page = btn.dataset.page;
-            $$('#page-dashboard, #page-vehicles, #page-requests').forEach(p => p.style.display = 'none');
+            $$('#page-dashboard, #page-vehicles, #page-requests, #page-admins, #page-settings').forEach(p => p.style.display = 'none');
             $('#page-' + page).style.display = 'block';
             $('#pageTitle').textContent = btn.querySelector('span').textContent;
         });
@@ -1020,14 +1221,53 @@
         $$('[data-edit]').forEach(btn => btn.addEventListener('click', () => openVehicleModal(btn.dataset.edit)));
     }
 
+    function buildSelectOptions(selectEl, options, includeOther){
+        selectEl.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('') + (includeOther ? '<option value="__other__">Other&hellip;</option>' : '');
+    }
+
+    function setSelectValueWithOther(selectId, otherId, options, value){
+        const select = $(selectId), other = $(otherId);
+        if (value && !options.includes(value)) {
+            select.value = '__other__';
+            other.style.display = 'block';
+            other.value = value;
+        } else {
+            select.value = value || options[0] || '';
+            other.style.display = 'none';
+            other.value = '';
+        }
+    }
+
+    function getSelectValueWithOther(selectId, otherId){
+        const select = $(selectId), other = $(otherId);
+        return select.value === '__other__' ? other.value.trim() : select.value;
+    }
+
+    function bindOtherToggle(selectId, otherId){
+        $(selectId).addEventListener('change', () => {
+            const isOther = $(selectId).value === '__other__';
+            $(otherId).style.display = isOther ? 'block' : 'none';
+            if (!isOther) $(otherId).value = '';
+        });
+    }
+    bindOtherToggle('#vCategory', '#vCategoryOther');
+    bindOtherToggle('#vBrand', '#vBrandOther');
+    bindOtherToggle('#vFuelType', '#vFuelTypeOther');
+
     function openVehicleModal(id){
         const v = id ? vehiclesCache.find(x=>x._id===id) : null;
         $('#vehicleModalTitle').innerHTML = v ? '<i class="fas fa-car"></i> Edit Vehicle' : '<i class="fas fa-car"></i> Add Vehicle';
         $('#vehicleId').value = v ? v._id : '';
         $('#vName').value = v ? v.name : '';
-        $('#vBrand').value = v ? v.brand : '';
+
+        buildSelectOptions($('#vBrand'), appSettings.vehicleBrands, true);
+        setSelectValueWithOther('#vBrand', '#vBrandOther', appSettings.vehicleBrands, v ? v.brand : '');
+
         $('#vYear').value = v ? v.modelYear : '';
-        $('#vCategory').value = v ? v.category : 'SUV';
+
+        buildSelectOptions($('#vCategory'), appSettings.vehicleCategories, true);
+        setSelectValueWithOther('#vCategory', '#vCategoryOther', appSettings.vehicleCategories, v ? v.category : '');
+
         $('#vPlate').value = v ? v.plateNumber||'' : '';
         $('#vVin').value = v ? v.vin||'' : '';
         $('#vStatus').value = v ? v.status : 'available';
@@ -1035,7 +1275,13 @@
         $('#vDaily').value = v ? v.dailyRentalRate : '';
         $('#vMonthly').value = v ? v.monthlyLeaseRate : '';
         $('#vPrice').value = v ? v.purchasePrice : '';
-        $('#vTransmission').value = v ? v.transmission : 'Automatic';
+
+        buildSelectOptions($('#vTransmission'), appSettings.transmissionTypes, false);
+        $('#vTransmission').value = v ? v.transmission : (appSettings.transmissionTypes[0] || 'Automatic');
+
+        buildSelectOptions($('#vFuelType'), appSettings.fuelTypes, true);
+        setSelectValueWithOther('#vFuelType', '#vFuelTypeOther', appSettings.fuelTypes, v ? v.fuelType : '');
+
         $('#vImage').value = v && v.images && v.images[0] ? v.images[0] : '';
         $('#vDescription').value = v ? v.description||'' : '';
         $('#vDeviceId').value = v && v.tracking ? v.tracking.deviceId||'' : '';
@@ -1053,12 +1299,15 @@
 
     async function saveVehicle(){
         const id = $('#vehicleId').value;
+        const brand = getSelectValueWithOther('#vBrand', '#vBrandOther');
+        const category = getSelectValueWithOther('#vCategory', '#vCategoryOther');
+        const fuelType = getSelectValueWithOther('#vFuelType', '#vFuelTypeOther');
         const payload = {
-            name: $('#vName').value, brand: $('#vBrand').value, modelYear: Number($('#vYear').value),
-            category: $('#vCategory').value, plateNumber: $('#vPlate').value, vin: $('#vVin').value,
+            name: $('#vName').value, brand, modelYear: Number($('#vYear').value),
+            category, plateNumber: $('#vPlate').value, vin: $('#vVin').value,
             status: $('#vStatus').value, seats: Number($('#vSeats').value),
             dailyRentalRate: Number($('#vDaily').value)||0, monthlyLeaseRate: Number($('#vMonthly').value)||0,
-            purchasePrice: Number($('#vPrice').value)||0, transmission: $('#vTransmission').value,
+            purchasePrice: Number($('#vPrice').value)||0, transmission: $('#vTransmission').value, fuelType,
             images: $('#vImage').value ? [$('#vImage').value] : [], description: $('#vDescription').value,
             tracking: {
                 deviceId: $('#vDeviceId').value, deviceIp: $('#vDeviceIp').value,
@@ -1095,6 +1344,265 @@
         finally { hideSpinner(); }
     }
     window.deleteVehicle = deleteVehicle;
+
+    // ----- PROFILE / SETTINGS -----
+    async function loadProfile(){
+        try {
+            currentAdmin = await api('/auth/me');
+            $('#settingsName').textContent = currentAdmin.name;
+            $('#settingsRole').textContent = currentAdmin.role;
+            $('#settingsEmail').textContent = currentAdmin.email;
+            $('#settingsRoleValue').textContent = currentAdmin.role;
+            $('#settingsCreated').textContent = currentAdmin.createdAt ? new Date(currentAdmin.createdAt).toLocaleDateString() : '&mdash;';
+            $('#settingsLastLogin').textContent = currentAdmin.lastLoginAt ? new Date(currentAdmin.lastLoginAt).toLocaleString() : 'First login';
+            // keep the sidebar/topbar name in sync with the real record
+            localStorage.setItem('sidita_admin_name', currentAdmin.name || currentAdmin.email);
+            $('#sidebarUserName').textContent = currentAdmin.name || currentAdmin.email;
+            $('#whoLabelText').textContent = currentAdmin.name || currentAdmin.email;
+        } catch (err) {
+            showNotification('Could not load profile: ' + err.message, 'error');
+        }
+    }
+
+    $('#changePasswordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentPassword = $('#cpCurrent').value;
+        const newPassword = $('#cpNew').value;
+        const confirmPassword = $('#cpConfirm').value;
+        $('#changePasswordError').style.display = 'none';
+
+        if (newPassword !== confirmPassword) {
+            $('#changePasswordError').textContent = "New password and confirmation don't match";
+            $('#changePasswordError').style.display = 'block';
+            return;
+        }
+
+        showSpinner();
+        try {
+            await api('/auth/change-password', { method:'POST', body:{ currentPassword, newPassword } });
+            hideSpinner();
+            forceLogout('Password updated. Please sign in again with your new password.');
+        } catch (err) {
+            hideSpinner();
+            $('#changePasswordError').textContent = err.message;
+            $('#changePasswordError').style.display = 'block';
+        }
+    });
+
+    // ----- ADMINS -----
+    let adminsCache = [];
+
+    async function loadAdmins(){
+        try {
+            adminsCache = await api('/admins');
+            renderAdmins();
+        } catch (err) {
+            $('#adminsTableBody').innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--muted);">couldn't load admins: ${err.message}</td></tr>`;
+        }
+    }
+
+    function renderAdmins(){
+        const body = $('#adminsTableBody');
+        if (!adminsCache.length){
+            body.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--muted);">no admins found.</td></tr>';
+            return;
+        }
+        body.innerHTML = adminsCache.map(a => {
+            const isSelf = currentAdmin && a._id === currentAdmin._id;
+            const isLastAdmin = adminsCache.length <= 1;
+            const disableDelete = isSelf || isLastAdmin;
+            const title = isSelf ? 'You cannot delete your own account' : (isLastAdmin ? 'At least one admin must remain' : 'Remove this admin');
+            return `
+            <tr>
+                <td><strong>${a.name}</strong>${isSelf ? ' <span style="color:var(--muted); font-size:0.75rem;">(you)</span>' : ''}</td>
+                <td>${a.email}</td>
+                <td><span class="executive-badge" style="${a.role==='owner' ? '' : 'background:#e2e3e5;color:#383d41;'}">${a.role}</span></td>
+                <td style="font-size:0.8rem; color:var(--muted);">${a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString() : 'Never'}</td>
+                <td style="display:flex; gap:6px;">
+                    <button class="btn btn-sm btn-warning" data-reset-admin="${a._id}" data-reset-name="${a.name}" ${isSelf ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''} title="${isSelf ? 'Use Change Password in Settings instead' : 'Reset password for this admin'}">
+                        <i class="fas fa-key"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" data-delete-admin="${a._id}" ${disableDelete ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''} title="${title}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+        $$('[data-delete-admin]').forEach(btn => {
+            if (btn.disabled) return;
+            btn.addEventListener('click', () => deleteAdmin(btn.dataset.deleteAdmin));
+        });
+        $$('[data-reset-admin]').forEach(btn => {
+            if (btn.disabled) return;
+            btn.addEventListener('click', () => resetAdminPassword(btn.dataset.resetAdmin, btn.dataset.resetName));
+        });
+    }
+
+    function openAdminModal(){
+        $('#adminForm').reset();
+        $('#adminFormError').style.display = 'none';
+        $('#adminModal').classList.add('active');
+    }
+    function closeAdminModal(){ $('#adminModal').classList.remove('active'); }
+    window.closeAdminModal = closeAdminModal;
+    $('#addAdminBtn').addEventListener('click', openAdminModal);
+
+    async function saveAdmin(){
+        const payload = {
+            name: $('#aName').value.trim(),
+            email: $('#aEmail').value.trim(),
+            password: $('#aPassword').value,
+            role: $('#aRole').value
+        };
+        $('#adminFormError').style.display = 'none';
+        if (!payload.name || !payload.email || !payload.password) {
+            $('#adminFormError').textContent = 'Name, email, and password are required';
+            $('#adminFormError').style.display = 'block';
+            return;
+        }
+        showSpinner();
+        try {
+            await api('/admins', { method:'POST', body: payload });
+            showNotification('Admin created', 'success');
+            closeAdminModal();
+            await loadAdmins();
+        } catch (err) {
+            $('#adminFormError').textContent = err.message;
+            $('#adminFormError').style.display = 'block';
+        } finally {
+            hideSpinner();
+        }
+    }
+    window.saveAdmin = saveAdmin;
+
+    async function deleteAdmin(id){
+        if (!confirm('Remove this admin? They will immediately lose access.')) return;
+        showSpinner();
+        try {
+            await api('/admins/' + id, { method:'DELETE' });
+            showNotification('Admin removed', 'success');
+            await loadAdmins();
+        } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        finally { hideSpinner(); }
+    }
+
+    async function resetAdminPassword(id, name){
+        if (!confirm(`Reset the password for ${name}? A new temporary password will be generated and they'll be logged out everywhere.`)) return;
+        showSpinner();
+        try {
+            const data = await api('/admins/' + id + '/reset-password', { method:'PUT', body:{} });
+            $('#resetResultName').textContent = name;
+            $('#resetResultPassword').textContent = data.temporaryPassword || '(already set)';
+            $('#resetPasswordResultModal').classList.add('active');
+        } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        finally { hideSpinner(); }
+    }
+
+    function closeResetResultModal(){ $('#resetPasswordResultModal').classList.remove('active'); }
+    window.closeResetResultModal = closeResetResultModal;
+
+    $('#copyResetPasswordBtn').addEventListener('click', () => {
+        const pwd = $('#resetResultPassword').textContent;
+        navigator.clipboard.writeText(pwd).then(
+            () => showNotification('Copied to clipboard', 'success'),
+            () => showNotification('Could not copy — select and copy manually', 'error')
+        );
+    });
+
+    // ----- SETTINGS: dynamic dropdown lists + currency -----
+    async function loadSettings(){
+        try {
+            const data = await api('/settings', { auth:false });
+            appSettings = {
+                vehicleCategories: data.vehicleCategories || [],
+                vehicleBrands: data.vehicleBrands || [],
+                fuelTypes: data.fuelTypes || [],
+                transmissionTypes: data.transmissionTypes || [],
+                currency: data.currency || { code: 'NGN', symbol: '₦' }
+            };
+            $$('.currency-label').forEach(el => el.textContent = appSettings.currency.symbol);
+            const currencyValue = appSettings.currency.code + '|' + appSettings.currency.symbol;
+            const currencySelect = $('#settingsCurrencySelect');
+            if ([...currencySelect.options].some(o => o.value === currencyValue)) {
+                currencySelect.value = currencyValue;
+            }
+            renderTagList('catList', appSettings.vehicleCategories);
+            renderTagList('brandList', appSettings.vehicleBrands);
+            renderTagList('fuelList', appSettings.fuelTypes);
+            renderTagList('transList', appSettings.transmissionTypes);
+            // re-render anything already on screen that shows money
+            renderVehicles();
+        } catch (err) {
+            showNotification('Could not load settings: ' + err.message, 'error');
+        }
+    }
+
+    function renderTagList(containerId, list){
+        const container = $('#' + containerId);
+        container.innerHTML = list.map((item, i) => `
+            <span class="selected-tag" data-list="${containerId}" data-index="${i}">
+                ${item} <i class="fas fa-times" data-remove="${containerId}:${i}"></i>
+            </span>
+        `).join('') || '<span style="color:var(--muted); font-size:0.8rem;">No options yet — add one below.</span>';
+        $$(`[data-remove^="${containerId}:"]`).forEach(icon => {
+            icon.addEventListener('click', () => {
+                const idx = Number(icon.dataset.remove.split(':')[1]);
+                const key = listKeyFor(containerId);
+                appSettings[key].splice(idx, 1);
+                renderTagList(containerId, appSettings[key]);
+            });
+        });
+    }
+
+    function listKeyFor(containerId){
+        return { catList:'vehicleCategories', brandList:'vehicleBrands', fuelList:'fuelTypes', transList:'transmissionTypes' }[containerId];
+    }
+
+    function bindAddControl(inputId, btnId, containerId){
+        const add = () => {
+            const input = $(inputId);
+            const value = input.value.trim();
+            if (!value) return;
+            const key = listKeyFor(containerId);
+            if (appSettings[key].some(v => v.toLowerCase() === value.toLowerCase())) { input.value=''; return; }
+            appSettings[key].push(value);
+            input.value = '';
+            renderTagList(containerId, appSettings[key]);
+        };
+        $(btnId).addEventListener('click', add);
+        $(inputId).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+    }
+    bindAddControl('#catNewInput', '#catAddBtn', 'catList');
+    bindAddControl('#brandNewInput', '#brandAddBtn', 'brandList');
+    bindAddControl('#fuelNewInput', '#fuelAddBtn', 'fuelList');
+    bindAddControl('#transNewInput', '#transAddBtn', 'transList');
+
+    $('#saveVehicleOptionsBtn').addEventListener('click', async () => {
+        showSpinner();
+        try {
+            await api('/settings', { method:'PUT', body:{
+                vehicleCategories: appSettings.vehicleCategories,
+                vehicleBrands: appSettings.vehicleBrands,
+                fuelTypes: appSettings.fuelTypes,
+                transmissionTypes: appSettings.transmissionTypes
+            }});
+            showNotification('Vehicle options saved', 'success');
+        } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        finally { hideSpinner(); }
+    });
+
+    $('#saveCurrencyBtn').addEventListener('click', async () => {
+        const [code, symbol] = $('#settingsCurrencySelect').value.split('|');
+        showSpinner();
+        try {
+            await api('/settings', { method:'PUT', body:{ currency: { code, symbol } } });
+            appSettings.currency = { code, symbol };
+            $$('.currency-label').forEach(el => el.textContent = symbol);
+            renderVehicles();
+            showNotification('Currency updated', 'success');
+        } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        finally { hideSpinner(); }
+    });
 
     // ----- REQUESTS -----
     async function loadRequests(status){
