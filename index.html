@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>SIDITA - Fleet Management System</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script>
+    // If jsDelivr is unreachable on this network, fall back to cdnjs automatically.
+    if (typeof Chart === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"><\/script>');
+    }
+  </script>
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
 
@@ -667,7 +673,7 @@
 
 <div id="loadingSpinner" class="loading-spinner">
     <div class="spinner"></div>
-    <p style="margin-top: 20px; color: var(--primary); font-weight: 600;">Initializing SIDITA...</p>
+    <p style="margin-top: 20px; color: var(--primary); font-weight: 600;">Loading..</p>
 </div>
 
 <!-- Login Screen -->
@@ -768,8 +774,8 @@
                     <div class="card-body">
                         <div class="table-container">
                             <table class="data-table" id="vehiclesTable">
-                                <thead><th>Vehicle</th><th>Category</th><th>Status</th><th>Daily / Monthly</th><th>Tracker IP</th><th>Actions</th></thead>
-                                <tbody id="vehiclesTableBody"><tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">loading vehicles&hellip;</td></tr></tbody>
+                                <thead><th>Vehicle</th><th>Category</th><th>Status</th><th>Daily / Monthly</th><th>Tracker IP</th><th>Location</th><th>Actions</th></thead>
+                                <tbody id="vehiclesTableBody"><tr><td colspan="7" style="text-align:center; padding:30px; color:var(--muted);">loading vehicles&hellip;</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -956,6 +962,17 @@
                     <div class="form-group"><label class="form-label">Status</label>
                         <select id="vStatus" class="form-control"><option value="available">Available</option><option value="leased">Leased</option><option value="rented">Rented</option><option value="maintenance">Maintenance</option></select>
                     </div>
+                    <div class="form-group"><label class="form-label">Condition</label>
+                        <select id="vCondition" class="form-control">
+                            <option>Brand New</option><option>Foreign Used</option><option>Nigerian Used</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Listing Status</label>
+                        <select id="vListingStatus" class="form-control">
+                            <option value="Not For Sale">Not For Sale</option>
+                            <option value="For Sale">For Sale</option>
+                        </select>
+                    </div>
                     <div class="form-group"><label class="form-label">Seats</label><input type="number" id="vSeats" class="form-control" value="5"></div>
                     <div class="form-group"><label class="form-label">Daily Rate (<span class="currency-label">₦</span>)</label><input type="number" id="vDaily" class="form-control" placeholder="35000"></div>
                     <div class="form-group"><label class="form-label">Monthly Rate (<span class="currency-label">₦</span>)</label><input type="number" id="vMonthly" class="form-control" placeholder="450000"></div>
@@ -969,7 +986,12 @@
                         <select id="vFuelType" class="form-control"></select>
                         <input type="text" id="vFuelTypeOther" class="form-control" placeholder="Type fuel type" style="margin-top:8px; display:none;">
                     </div>
-                    <div class="form-group" style="grid-column: 1/-1;"><label class="form-label">Image URL</label><input type="text" id="vImage" class="form-control" placeholder="https://..."></div>
+                    <div class="form-group" style="grid-column: 1/-1;">
+                        <label class="form-label">Photos (up to 5)</label>
+                        <div id="vImagePreviews" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;"></div>
+                        <input type="file" id="vImageFiles" accept="image/*" multiple style="padding:10px 15px;">
+                        <p style="color:var(--muted); font-size:0.78rem; margin-top:6px;">Selecting new photos adds to the list below, up to 5 total. Click the &times; on a thumbnail to remove it.</p>
+                    </div>
                     <div class="form-group" style="grid-column: 1/-1;"><label class="form-label">Description</label><textarea id="vDescription" class="form-control" rows="2" placeholder="short description"></textarea></div>
                 </div>
 
@@ -977,9 +999,8 @@
                 <div class="form-grid">
                     <div class="form-group"><label class="form-label">Device ID</label><input type="text" id="vDeviceId" class="form-control" placeholder="TRK-00123"></div>
                     <div class="form-group"><label class="form-label">IP Address</label><input type="text" id="vDeviceIp" class="form-control" placeholder="192.168.1.42"></div>
-                    <div class="form-group"><label class="form-label">Latitude</label><input type="number" step="any" id="vLat" class="form-control" placeholder="6.4483"></div>
-                    <div class="form-group"><label class="form-label">Longitude</label><input type="number" step="any" id="vLng" class="form-control" placeholder="3.4720"></div>
                 </div>
+                <p style="color:var(--muted); font-size:0.8rem; margin-top:-6px;">Set this vehicle's coordinates from the <i class="fas fa-map-marker-alt"></i> location button on the Vehicles table instead.</p>
             </form>
         </div>
         <div class="modal-footer">
@@ -1034,6 +1055,48 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary" onclick="closeResetResultModal()">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- GENERIC CONFIRMATION MODAL (replaces browser confirm() dialogs) -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal" style="max-width: 420px;">
+        <div class="modal-header">
+            <h3 id="confirmModalTitle"><i class="fas fa-question-circle"></i> Confirm</h3>
+            <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmModalMessage" style="color:var(--muted); font-size:0.95rem; line-height:1.6;"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+            <button class="btn btn-danger" id="confirmModalConfirmBtn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- VEHICLE LOCATION MODAL -->
+<div id="locationModal" class="modal-overlay">
+    <div class="modal" style="max-width: 560px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-map-marker-alt"></i> <span id="locationModalTitle">Vehicle Location</span></h3>
+            <button class="modal-close" onclick="closeLocationModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="locationMapWrap" style="border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); margin-bottom:16px; display:none;">
+                <iframe id="locationMapFrame" width="100%" height="260" style="border:0; display:block;" loading="lazy"></iframe>
+            </div>
+            <p id="locationEmptyState" style="color:var(--muted); font-size:0.9rem; margin-bottom:16px;">No location on file for this vehicle yet. Enter coordinates below (e.g. from the tracker device) to plot it.</p>
+            <div class="form-grid">
+                <div class="form-group"><label class="form-label">Latitude</label><input type="number" step="any" id="locLat" class="form-control" style="padding-left:15px;" placeholder="6.4483"></div>
+                <div class="form-group"><label class="form-label">Longitude</label><input type="number" step="any" id="locLng" class="form-control" style="padding-left:15px;" placeholder="3.4720"></div>
+            </div>
+            <p id="locationLastPing" style="color:var(--muted); font-size:0.8rem;"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeLocationModal()">Close</button>
+            <button class="btn btn-primary" id="saveLocationBtn"><i class="fas fa-save"></i> Save location</button>
         </div>
     </div>
 </div>
@@ -1112,7 +1175,9 @@
         }
     });
 
-    $('#logoutBtn').addEventListener('click', () => {
+    $('#logoutBtn').addEventListener('click', async () => {
+        const ok = await askConfirm('You will need to sign in again to access the dashboard.', { title: 'Log out?', confirmText: 'Log out' });
+        if (!ok) return;
         showSpinner();
         clearToken();
         location.reload();
@@ -1127,7 +1192,10 @@
         $('#whoLabelText').textContent = localStorage.getItem('sidita_admin_name') || '';
         showSpinner();
         try {
-            await Promise.all([ loadDashboard(), loadVehicles(), loadRequests(''), loadProfile(), loadAdmins(), loadSettings() ]);
+            // profile loads first so "isSelf" checks (reset/delete buttons) are correct
+            // the very first time the Admins list renders, instead of racing with it.
+            await loadProfile();
+            await Promise.all([ loadDashboard(), loadVehicles(), loadRequests(''), loadAdmins(), loadSettings() ]);
         } finally {
             hideSpinner();
         }
@@ -1163,6 +1231,13 @@
             const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             const monthlyLabels = (data.requestsPerMonth||[]).map(m=>months[m._id.month-1]+' '+m._id.year);
             const monthlyValues = (data.requestsPerMonth||[]).map(m=>m.count);
+            const statusLabels = Object.keys(byStatus);
+            const statusValues = Object.values(byStatus);
+
+            if (typeof Chart === 'undefined') {
+                $('#monthlyChart').closest('.card-body').innerHTML = '<p style="text-align:center; color:var(--muted); padding:30px 0;"><i class="fas fa-wifi" style="margin-right:6px;"></i>Charts couldn\'t load — check your internet connection and refresh.</p>';
+                return;
+            }
 
             if (monthlyChart) monthlyChart.destroy();
             monthlyChart = new Chart($('#monthlyChart'), {
@@ -1171,8 +1246,6 @@
                 options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
             });
 
-            const statusLabels = Object.keys(byStatus);
-            const statusValues = Object.values(byStatus);
             if (statusChart) statusChart.destroy();
             statusChart = new Chart($('#statusChart'), {
                 type:'doughnut',
@@ -1192,7 +1265,7 @@
             vehiclesCache = await api('/vehicles', { auth:false });
             renderVehicles();
         } catch (err) {
-            $('#vehiclesTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">couldn't load vehicles: ${err.message}</td></tr>`;
+            $('#vehiclesTableBody').innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--muted);">couldn't load vehicles: ${err.message}</td></tr>`;
         }
     }
 
@@ -1205,21 +1278,89 @@
     function renderVehicles(){
         const body = $('#vehiclesTableBody');
         if (!vehiclesCache.length){
-            body.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">no vehicles yet &mdash; add your first.</td></tr>';
+            body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--muted);">no vehicles yet &mdash; add your first.</td></tr>';
             return;
         }
-        body.innerHTML = vehiclesCache.map(v => `
+        body.innerHTML = vehiclesCache.map(v => {
+            const loc = v.tracking && v.tracking.lastKnownLocation && v.tracking.lastKnownLocation.lat != null && v.tracking.lastKnownLocation.lng != null;
+            return `
             <tr>
-                <td><strong>${v.name}</strong><br><span style="color:var(--muted);font-size:0.75rem;">${v.brand} &middot; ${v.modelYear}</span></td>
+                <td><strong>${v.name}</strong> ${v.listingStatus === 'For Sale' ? '<span class="status-badge" style="background:#fdf3d8;color:#8a6417;">For Sale</span>' : ''}<br><span style="color:var(--muted);font-size:0.75rem;">${v.brand} &middot; ${v.modelYear} &middot; ${v.condition || 'Nigerian Used'}</span></td>
                 <td>${v.category}</td>
                 <td><span class="status-badge ${statusBadgeClass(v.status)}">${v.status}</span></td>
                 <td>${fmtMoney(v.dailyRentalRate)}/day<br>${fmtMoney(v.monthlyLeaseRate)}/mo</td>
                 <td>${(v.tracking && v.tracking.deviceIp) || '&mdash;'}</td>
-                <td><button class="btn btn-sm btn-secondary" data-edit="${v._id}"><i class="fas fa-edit"></i> Edit</button></td>
-            </tr>
-        `).join('');
+                <td>
+                    <button class="btn btn-sm ${loc ? 'btn-secondary' : 'btn-warning'}" data-location="${v._id}" title="${loc ? 'View on map' : 'No location set — click to add one'}">
+                        <i class="fas fa-map-marker-alt"></i> ${loc ? 'View' : 'Set'}
+                    </button>
+                </td>
+                <td style="display:flex; gap:6px;">
+                    <button class="btn btn-sm btn-secondary" data-edit="${v._id}" title="Edit vehicle"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger" data-delete-vehicle="${v._id}" data-vehicle-name="${v.name}" title="Delete vehicle"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
         $$('[data-edit]').forEach(btn => btn.addEventListener('click', () => openVehicleModal(btn.dataset.edit)));
+        $$('[data-delete-vehicle]').forEach(btn => btn.addEventListener('click', () => deleteVehicleById(btn.dataset.deleteVehicle, btn.dataset.vehicleName)));
+        $$('[data-location]').forEach(btn => btn.addEventListener('click', () => openLocationModal(btn.dataset.location)));
     }
+
+    // ----- VEHICLE LOCATION (view on map / update coordinates) -----
+    let locationVehicleId = null;
+
+    function openLocationModal(id){
+        const v = vehiclesCache.find(x => x._id === id);
+        if (!v) return;
+        locationVehicleId = id;
+        $('#locationModalTitle').textContent = v.name;
+        const loc = v.tracking && v.tracking.lastKnownLocation;
+        const hasLoc = loc && loc.lat != null && loc.lng != null;
+
+        $('#locLat').value = hasLoc ? loc.lat : '';
+        $('#locLng').value = hasLoc ? loc.lng : '';
+
+        if (hasLoc) {
+            $('#locationMapWrap').style.display = 'block';
+            $('#locationEmptyState').style.display = 'none';
+            $('#locationMapFrame').src = `https://www.google.com/maps?q=${loc.lat},${loc.lng}&z=15&output=embed`;
+        } else {
+            $('#locationMapWrap').style.display = 'none';
+            $('#locationEmptyState').style.display = 'block';
+        }
+        $('#locationLastPing').textContent = (v.tracking && v.tracking.lastPingAt)
+            ? 'Last updated ' + new Date(v.tracking.lastPingAt).toLocaleString()
+            : '';
+        $('#locationModal').classList.add('active');
+    }
+    function closeLocationModal(){ $('#locationModal').classList.remove('active'); locationVehicleId = null; }
+    window.closeLocationModal = closeLocationModal;
+
+    $('#saveLocationBtn').addEventListener('click', async () => {
+        if (!locationVehicleId) return;
+        const lat = Number($('#locLat').value);
+        const lng = Number($('#locLng').value);
+        if (!$('#locLat').value || !$('#locLng').value || Number.isNaN(lat) || Number.isNaN(lng)) {
+            showNotification('Enter both latitude and longitude', 'error');
+            return;
+        }
+        showSpinner();
+        try {
+            const v = vehiclesCache.find(x => x._id === locationVehicleId);
+            await api(`/vehicles/${locationVehicleId}/tracking`, {
+                method: 'PATCH',
+                body: {
+                    deviceId: v && v.tracking ? v.tracking.deviceId : '',
+                    deviceIp: v && v.tracking ? v.tracking.deviceIp : '',
+                    lat, lng
+                }
+            });
+            showNotification('Location updated', 'success');
+            closeLocationModal();
+            await loadVehicles();
+        } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        finally { hideSpinner(); }
+    });
 
     function buildSelectOptions(selectEl, options, includeOther){
         selectEl.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('') + (includeOther ? '<option value="__other__">Other&hellip;</option>' : '');
@@ -1256,6 +1397,7 @@
 
     function openVehicleModal(id){
         const v = id ? vehiclesCache.find(x=>x._id===id) : null;
+        editingVehicleTrackingLocation = v && v.tracking ? v.tracking.lastKnownLocation : null;
         $('#vehicleModalTitle').innerHTML = v ? '<i class="fas fa-car"></i> Edit Vehicle' : '<i class="fas fa-car"></i> Add Vehicle';
         $('#vehicleId').value = v ? v._id : '';
         $('#vName').value = v ? v.name : '';
@@ -1282,14 +1424,75 @@
         buildSelectOptions($('#vFuelType'), appSettings.fuelTypes, true);
         setSelectValueWithOther('#vFuelType', '#vFuelTypeOther', appSettings.fuelTypes, v ? v.fuelType : '');
 
-        $('#vImage').value = v && v.images && v.images[0] ? v.images[0] : '';
+        $('#vCondition').value = v ? (v.condition || 'Nigerian Used') : 'Nigerian Used';
+        $('#vListingStatus').value = v ? (v.listingStatus || 'Not For Sale') : 'Not For Sale';
+
+        currentVehicleImages = v && Array.isArray(v.images) ? [...v.images] : [];
+        pendingImageFiles = [];
+        renderImagePreviews();
+
         $('#vDescription').value = v ? v.description||'' : '';
         $('#vDeviceId').value = v && v.tracking ? v.tracking.deviceId||'' : '';
         $('#vDeviceIp').value = v && v.tracking ? v.tracking.deviceIp||'' : '';
-        $('#vLat').value = v && v.tracking && v.tracking.lastKnownLocation ? v.tracking.lastKnownLocation.lat||'' : '';
-        $('#vLng').value = v && v.tracking && v.tracking.lastKnownLocation ? v.tracking.lastKnownLocation.lng||'' : '';
         $('#deleteVehicleBtn').style.display = v ? 'inline-flex' : 'none';
         $('#vehicleModal').classList.add('active');
+    }
+
+    let currentVehicleImages = []; // existing (already-uploaded) image URLs kept for this vehicle
+    let pendingImageFiles = [];    // newly selected File objects not yet uploaded
+    let editingVehicleTrackingLocation = null;
+
+    function totalImageCount(){ return currentVehicleImages.length + pendingImageFiles.length; }
+
+    function renderImagePreviews(){
+        const wrap = $('#vImagePreviews');
+        const existing = currentVehicleImages.map((url, i) => `
+            <div style="position:relative; width:80px; height:80px;">
+                <img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:10px; border:1px solid var(--border);">
+                <button type="button" data-remove-existing="${i}" style="position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:#dc3545; color:#fff; border:2px solid #fff; font-size:12px; line-height:1; cursor:pointer;">&times;</button>
+            </div>`);
+        const pending = pendingImageFiles.map((file, i) => `
+            <div style="position:relative; width:80px; height:80px;">
+                <img src="${URL.createObjectURL(file)}" style="width:100%; height:100%; object-fit:cover; border-radius:10px; border:2px dashed var(--primary);">
+                <button type="button" data-remove-pending="${i}" style="position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:#dc3545; color:#fff; border:2px solid #fff; font-size:12px; line-height:1; cursor:pointer;">&times;</button>
+            </div>`);
+        wrap.innerHTML = existing.join('') + pending.join('') || '<p style="color:var(--muted); font-size:0.8rem;">No photos yet.</p>';
+        $$('[data-remove-existing]').forEach(btn => btn.addEventListener('click', () => {
+            currentVehicleImages.splice(Number(btn.dataset.removeExisting), 1);
+            renderImagePreviews();
+        }));
+        $$('[data-remove-pending]').forEach(btn => btn.addEventListener('click', () => {
+            pendingImageFiles.splice(Number(btn.dataset.removePending), 1);
+            renderImagePreviews();
+        }));
+        $('#vImageFiles').disabled = totalImageCount() >= 5;
+    }
+
+    $('#vImageFiles').addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        const room = 5 - totalImageCount();
+        if (files.length > room) {
+            showNotification(`Only ${room} more photo(s) can be added (max 5 total)`, 'error');
+        }
+        pendingImageFiles.push(...files.slice(0, room));
+        e.target.value = '';
+        renderImagePreviews();
+    });
+
+    async function uploadImageFiles(files){
+        if (!files.length) return [];
+        const formData = new FormData();
+        files.forEach(f => formData.append('images', f));
+        const headers = {};
+        if (getToken()) headers['Authorization'] = 'Bearer ' + getToken();
+        const res = await fetch(API_BASE + '/uploads/images', { method: 'POST', headers, body: formData });
+        let data = null;
+        try { data = await res.json(); } catch(e){}
+        if (!res.ok) {
+            if (res.status === 401) forceLogout((data && data.error) || 'Your session has expired — please sign in again.');
+            throw new Error((data && data.error) || 'Image upload failed');
+        }
+        return data.urls || [];
     }
 
     function closeVehicleModal(){ $('#vehicleModal').classList.remove('active'); }
@@ -1302,24 +1505,34 @@
         const brand = getSelectValueWithOther('#vBrand', '#vBrandOther');
         const category = getSelectValueWithOther('#vCategory', '#vCategoryOther');
         const fuelType = getSelectValueWithOther('#vFuelType', '#vFuelTypeOther');
-        const payload = {
-            name: $('#vName').value, brand, modelYear: Number($('#vYear').value),
-            category, plateNumber: $('#vPlate').value, vin: $('#vVin').value,
-            status: $('#vStatus').value, seats: Number($('#vSeats').value),
-            dailyRentalRate: Number($('#vDaily').value)||0, monthlyLeaseRate: Number($('#vMonthly').value)||0,
-            purchasePrice: Number($('#vPrice').value)||0, transmission: $('#vTransmission').value, fuelType,
-            images: $('#vImage').value ? [$('#vImage').value] : [], description: $('#vDescription').value,
-            tracking: {
-                deviceId: $('#vDeviceId').value, deviceIp: $('#vDeviceIp').value,
-                lastKnownLocation: { lat: Number($('#vLat').value)||undefined, lng: Number($('#vLng').value)||undefined }
-            }
-        };
-        if (!payload.name || !payload.brand || !payload.modelYear) {
+
+        if (!$('#vName').value || !brand || !$('#vYear').value) {
             showNotification('Name, brand, and model year are required', 'error');
             return;
         }
+
         showSpinner();
         try {
+            let uploadedUrls = [];
+            if (pendingImageFiles.length) {
+                uploadedUrls = await uploadImageFiles(pendingImageFiles);
+            }
+            const images = [...currentVehicleImages, ...uploadedUrls].slice(0, 5);
+
+            const payload = {
+                name: $('#vName').value, brand, modelYear: Number($('#vYear').value),
+                category, plateNumber: $('#vPlate').value, vin: $('#vVin').value,
+                status: $('#vStatus').value, condition: $('#vCondition').value, listingStatus: $('#vListingStatus').value,
+                seats: Number($('#vSeats').value),
+                dailyRentalRate: Number($('#vDaily').value)||0, monthlyLeaseRate: Number($('#vMonthly').value)||0,
+                purchasePrice: Number($('#vPrice').value)||0, transmission: $('#vTransmission').value, fuelType,
+                images, description: $('#vDescription').value,
+                tracking: {
+                    deviceId: $('#vDeviceId').value, deviceIp: $('#vDeviceIp').value,
+                    lastKnownLocation: editingVehicleTrackingLocation || undefined
+                }
+            };
+
             if (id) await api('/vehicles/' + id, { method:'PUT', body: payload });
             else await api('/vehicles', { method:'POST', body: payload });
             showNotification('Vehicle saved', 'success');
@@ -1330,10 +1543,10 @@
     }
     window.saveVehicle = saveVehicle;
 
-    async function deleteVehicle(){
-        const id = $('#vehicleId').value;
+    async function deleteVehicleById(id, name){
         if (!id) return;
-        if (!confirm('Delete this vehicle?')) return;
+        const ok = await askConfirm(`Delete "${name}"? This cannot be undone.`, { title: 'Delete vehicle' });
+        if (!ok) return;
         showSpinner();
         try {
             await api('/vehicles/' + id, { method:'DELETE' });
@@ -1342,6 +1555,12 @@
             await Promise.all([ loadVehicles(), loadDashboard() ]);
         } catch (err) { showNotification('Error: ' + err.message, 'error'); }
         finally { hideSpinner(); }
+    }
+
+    async function deleteVehicle(){
+        const id = $('#vehicleId').value;
+        const v = vehiclesCache.find(x => x._id === id);
+        await deleteVehicleById(id, v ? v.name : 'this vehicle');
     }
     window.deleteVehicle = deleteVehicle;
 
@@ -1476,7 +1695,8 @@
     window.saveAdmin = saveAdmin;
 
     async function deleteAdmin(id){
-        if (!confirm('Remove this admin? They will immediately lose access.')) return;
+        const ok = await askConfirm('Remove this admin? They will immediately lose access.', { title: 'Remove admin' });
+        if (!ok) return;
         showSpinner();
         try {
             await api('/admins/' + id, { method:'DELETE' });
@@ -1487,19 +1707,45 @@
     }
 
     async function resetAdminPassword(id, name){
-        if (!confirm(`Reset the password for ${name}? A new temporary password will be generated and they'll be logged out everywhere.`)) return;
+        const ok = await askConfirm(`Reset the password for ${name}? A new temporary password will be generated and they'll be logged out everywhere.`, { title: 'Reset password' });
+        if (!ok) return;
         showSpinner();
         try {
             const data = await api('/admins/' + id + '/reset-password', { method:'PUT', body:{} });
             $('#resetResultName').textContent = name;
             $('#resetResultPassword').textContent = data.temporaryPassword || '(already set)';
             $('#resetPasswordResultModal').classList.add('active');
+            showNotification('Password reset', 'success');
         } catch (err) { showNotification('Error: ' + err.message, 'error'); }
         finally { hideSpinner(); }
     }
 
     function closeResetResultModal(){ $('#resetPasswordResultModal').classList.remove('active'); }
     window.closeResetResultModal = closeResetResultModal;
+
+    // ----- GENERIC CONFIRM MODAL (replaces browser confirm()) -----
+    let _confirmResolve = null;
+    function askConfirm(message, opts){
+        opts = opts || {};
+        return new Promise((resolve) => {
+            $('#confirmModalTitle').innerHTML = `<i class="fas fa-question-circle"></i> ${opts.title || 'Confirm'}`;
+            $('#confirmModalMessage').textContent = message;
+            $('#confirmModalConfirmBtn').textContent = opts.confirmText || 'Confirm';
+            $('#confirmModalConfirmBtn').className = 'btn ' + (opts.variant === 'primary' ? 'btn-primary' : 'btn-danger');
+            _confirmResolve = resolve;
+            $('#confirmModal').classList.add('active');
+        });
+    }
+    function closeConfirmModal(result){
+        $('#confirmModal').classList.remove('active');
+        if (_confirmResolve) {
+            const resolve = _confirmResolve;
+            _confirmResolve = null;
+            resolve(!!result);
+        }
+    }
+    window.closeConfirmModal = closeConfirmModal;
+    $('#confirmModalConfirmBtn').addEventListener('click', () => closeConfirmModal(true));
 
     $('#copyResetPasswordBtn').addEventListener('click', () => {
         const pwd = $('#resetResultPassword').textContent;
