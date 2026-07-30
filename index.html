@@ -234,12 +234,12 @@
         .page-title { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
         .logout-top-btn { background: rgba(0, 78, 43, 0.1); border: none; color: var(--primary); padding: 8px 16px; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
         
         .stat-card {
             background: white;
-            border-radius: var(--radius-lg);
-            padding: 20px;
+            border-radius: var(--radius);
+            padding: 13px 16px;
             box-shadow: var(--shadow);
             display: flex;
             align-items: center;
@@ -248,10 +248,13 @@
             border: 1px solid var(--border);
             cursor: pointer;
         }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-        .stat-info h3 { font-size: 1.8rem; font-weight: 700; color: var(--primary); margin: 0; }
-        .stat-info p { color: var(--muted); margin: 5px 0 0; font-size: 0.85rem; font-weight: 500; }
-        .stat-icon { width: 55px; height: 55px; background: var(--primary-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; box-shadow: 0 10px 20px -8px rgba(0,78,43,0.5); }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .stat-info h3 { font-size: 1.25rem; font-weight: 800; color: var(--primary); margin: 0; line-height:1.1; }
+        .stat-info p { color: var(--muted); margin: 3px 0 0; font-size: 0.72rem; font-weight: 600; }
+        .stat-icon { width: 38px; height: 38px; background: var(--primary-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #fff; box-shadow: 0 8px 16px -6px rgba(0,78,43,0.5); flex-shrink:0; }
+        @media (max-width: 1100px){ .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 760px){ .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px){ .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; } .stat-card{ padding:11px 13px; } }
         
         .card {
             background: var(--card-bg);
@@ -754,7 +757,7 @@
             <div class="sidebar-nav">
                 <div class="nav-item active" data-page="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
                 <div class="nav-item" data-page="vehicles"><i class="fas fa-car"></i><span>Vehicles</span></div>
-                <div class="nav-item" data-page="requests"><i class="fas fa-clipboard-list"></i><span>Requests</span></div>
+                <div class="nav-item" data-page="requests" style="position:relative;"><i class="fas fa-clipboard-list"></i><span>Requests</span><span id="requestsNavBadge" style="display:none; position:absolute; top:8px; left:30px; width:9px; height:9px; border-radius:50%; background:#dc3545; box-shadow:0 0 0 2px rgba(255,255,255,0.9);"></span></div>
                 <div class="nav-item" data-page="admins"><i class="fas fa-users-cog"></i><span>Admins</span></div>
                 <div class="nav-item" data-page="settings"><i class="fas fa-cog"></i><span>Settings</span></div>
             </div>
@@ -1146,32 +1149,39 @@
 
 <!-- VEHICLE LOCATION MODAL -->
 <div id="locationModal" class="modal-overlay">
-    <div class="modal" style="max-width: 560px;">
+    <div class="modal" style="max-width: 920px;">
         <div class="modal-header">
             <h3><i class="fas fa-map-marker-alt"></i> <span id="locationModalTitle">Vehicle Location</span></h3>
             <button class="modal-close" onclick="closeLocationModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <p id="locationPlaceName" style="display:none; font-weight:700; color:var(--primary); font-size:1rem; margin-bottom:12px;"><i class="fas fa-map-pin"></i> <span></span></p>
-            <div id="locationMapWrap" style="border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); margin-bottom:16px; display:none;">
-                <iframe id="locationMapFrame" width="100%" height="260" style="border:0; display:block;" loading="lazy"></iframe>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+                <div>
+                    <p id="locationPlaceName" style="display:none; font-weight:700; color:var(--primary); font-size:1.05rem; margin-bottom:4px;"><i class="fas fa-map-pin"></i> <span></span></p>
+                    <p id="locationDistance" style="display:none; color:var(--muted); font-size:0.85rem;"><i class="fas fa-route"></i> <span></span></p>
+                    <p id="locationLastPing" style="color:var(--muted); font-size:0.8rem;"></p>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm" id="refreshLocationBtn" type="button"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button class="btn btn-primary btn-sm" id="liveTrackToggleBtn" type="button"><i class="fas fa-satellite-dish"></i> Start live tracking</button>
+                </div>
             </div>
-            <p id="locationEmptyState" style="color:var(--muted); font-size:0.9rem; margin-bottom:16px;">No location on file for this vehicle yet. Try locating it from its tracker IP, or enter coordinates manually below.</p>
 
-            <button class="btn btn-secondary" id="locateFromIpBtn" type="button" style="width:100%; margin-bottom:14px;">
-                <i class="fas fa-satellite-dish"></i> Locate from tracker IP
-            </button>
-            <p style="color:var(--muted); font-size:0.72rem; margin:-8px 0 14px; text-align:center;">Approximate — based on the tracker's internet connection, not exact GPS. Can be off by a city or more.</p>
-
-            <div class="form-grid">
-                <div class="form-group"><label class="form-label">Latitude</label><input type="number" step="any" id="locLat" class="form-control" style="padding-left:15px;" placeholder="6.4483"></div>
-                <div class="form-group"><label class="form-label">Longitude</label><input type="number" step="any" id="locLng" class="form-control" style="padding-left:15px;" placeholder="3.4720"></div>
+            <div id="locationMapWrap" style="border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); margin-bottom:12px; display:none;">
+                <iframe id="locationMapFrame" width="100%" height="440" style="border:0; display:block;" loading="lazy"></iframe>
             </div>
-            <p id="locationLastPing" style="color:var(--muted); font-size:0.8rem;"></p>
+            <div id="locationEmptyState" style="text-align:center; padding:40px 20px; color:var(--muted); background:var(--light); border-radius:var(--radius); margin-bottom:12px;">
+                <i class="fas fa-satellite-dish" style="font-size:28px; margin-bottom:10px; display:block; color:var(--border);"></i>
+                No location on file yet — checking this vehicle's tracker now…
+            </div>
+
+            <p style="color:var(--muted); font-size:0.75rem; background:#fff9e6; border:1px solid #ffe8a3; padding:10px 12px; border-radius:8px;">
+                <i class="fas fa-triangle-exclamation" style="color:#d4a017;"></i>
+                Location is estimated from the tracker's internet connection (IP address), not true GPS — it can be off by a city or more and won't update the instant the vehicle moves. For reliable real-time anti-theft recovery, a dedicated GPS tracking device is needed; this is a best-effort estimate in the meantime.
+            </p>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeLocationModal()">Close</button>
-            <button class="btn btn-primary" id="saveLocationBtn"><i class="fas fa-save"></i> Save location</button>
         </div>
     </div>
 </div>
@@ -1301,6 +1311,17 @@
         $('#page-' + page).style.display = 'block';
         const navBtn = $(`.nav-item[data-page="${page}"]`);
         if (navBtn) $('#pageTitle').textContent = navBtn.querySelector('span').textContent;
+        if (page === 'requests') {
+            localStorage.setItem('sidita_requests_seen_at', new Date().toISOString());
+            $('#requestsNavBadge').style.display = 'none';
+        }
+    }
+
+    function updateRequestsBadge(requests){
+        const seenAt = localStorage.getItem('sidita_requests_seen_at');
+        const seenTime = seenAt ? new Date(seenAt).getTime() : 0;
+        const hasNewPending = requests.some(r => r.status === 'pending' && new Date(r.createdAt).getTime() > seenTime);
+        $('#requestsNavBadge').style.display = hasNewPending ? 'block' : 'none';
     }
 
     // navigation
@@ -1337,6 +1358,7 @@
             renderLatestVehicles(latestVehicles.slice(0, 6));
             renderLatestRequests(latestRequests.slice(0, 6));
             renderLatestAdmins([...latestAdmins].reverse().slice(0, 6));
+            updateRequestsBadge(latestRequests);
 
             const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             const monthlyLabels = (data.requestsPerMonth||[]).map(m=>months[m._id.month-1]+' '+m._id.year);
@@ -1471,92 +1493,130 @@
         } catch (err) { /* non-critical — map still shows without a place name */ }
     }
 
+    // Haversine distance in km between two lat/lng points
+    function distanceKm(lat1, lng1, lat2, lng2){
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function showDistanceFromAdmin(vehicleLat, vehicleLng){
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const km = distanceKm(pos.coords.latitude, pos.coords.longitude, vehicleLat, vehicleLng);
+                $('#locationDistance').querySelector('span').textContent = `${km < 1 ? Math.round(km*1000) + ' m' : km.toFixed(1) + ' km'} from your current location`;
+                $('#locationDistance').style.display = 'block';
+            },
+            () => { $('#locationDistance').style.display = 'none'; },
+            { timeout: 8000 }
+        );
+    }
+
+    function renderVehicleLocation(v, lat, lng, label){
+        $('#locationMapWrap').style.display = 'block';
+        $('#locationEmptyState').style.display = 'none';
+        $('#locationMapFrame').src = `https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+        if (label) {
+            $('#locationPlaceName').querySelector('span').textContent = label;
+            $('#locationPlaceName').style.display = 'block';
+        } else {
+            refreshLocationPlaceName(lat, lng);
+        }
+        showDistanceFromAdmin(lat, lng);
+    }
+
+    async function locateVehicleNow(id, { silent } = {}){
+        const v = vehiclesCache.find(x => x._id === id);
+        const ip = v && v.tracking ? v.tracking.deviceIp : '';
+        if (!ip) {
+            if (!silent) showNotification('This vehicle has no tracker IP saved yet — add one in Edit Vehicle first', 'error');
+            return null;
+        }
+        try {
+            const data = await api('/geocode/locate-ip', { method: 'POST', body: { ip } });
+            await api(`/vehicles/${id}/tracking`, {
+                method: 'PATCH',
+                body: { deviceId: v.tracking.deviceId || '', deviceIp: ip, lat: data.lat, lng: data.lng, locationLabel: data.label }
+            });
+            if (locationVehicleId === id) {
+                renderVehicleLocation(v, data.lat, data.lng, data.label);
+                $('#locationLastPing').textContent = 'Last updated ' + new Date().toLocaleString();
+            }
+            return data;
+        } catch (err) {
+            if (!silent) showNotification('Error locating vehicle: ' + err.message, 'error');
+            return null;
+        }
+    }
+
+    let liveTrackTimer = null;
+    function stopLiveTracking(){
+        if (liveTrackTimer) clearInterval(liveTrackTimer);
+        liveTrackTimer = null;
+        $('#liveTrackToggleBtn').innerHTML = '<i class="fas fa-satellite-dish"></i> Start live tracking';
+        $('#liveTrackToggleBtn').classList.remove('btn-danger');
+        $('#liveTrackToggleBtn').classList.add('btn-primary');
+    }
+    function startLiveTracking(id){
+        stopLiveTracking();
+        $('#liveTrackToggleBtn').innerHTML = '<i class="fas fa-stop"></i> Stop live tracking';
+        $('#liveTrackToggleBtn').classList.remove('btn-primary');
+        $('#liveTrackToggleBtn').classList.add('btn-danger');
+        liveTrackTimer = setInterval(() => locateVehicleNow(id, { silent: true }), 20000);
+    }
+
+    $('#refreshLocationBtn').addEventListener('click', async () => {
+        if (!locationVehicleId) return;
+        showSpinner();
+        await locateVehicleNow(locationVehicleId);
+        hideSpinner();
+    });
+
+    $('#liveTrackToggleBtn').addEventListener('click', () => {
+        if (!locationVehicleId) return;
+        if (liveTrackTimer) {
+            stopLiveTracking();
+            showNotification('Live tracking stopped', 'success');
+        } else {
+            startLiveTracking(locationVehicleId);
+            showNotification('Live tracking started — refreshing every 20 seconds', 'success');
+        }
+    });
+
     function openLocationModal(id){
         const v = vehiclesCache.find(x => x._id === id);
         if (!v) return;
         locationVehicleId = id;
+        stopLiveTracking();
         $('#locationModalTitle').textContent = v.name;
+        $('#locationPlaceName').style.display = 'none';
+        $('#locationDistance').style.display = 'none';
         const loc = v.tracking && v.tracking.lastKnownLocation;
         const hasLoc = loc && loc.lat != null && loc.lng != null;
 
-        $('#locLat').value = hasLoc ? loc.lat : '';
-        $('#locLng').value = hasLoc ? loc.lng : '';
-        $('#locationPlaceName').style.display = 'none';
-
         if (hasLoc) {
-            $('#locationMapWrap').style.display = 'block';
-            $('#locationEmptyState').style.display = 'none';
-            $('#locationMapFrame').src = `https://www.google.com/maps?q=${loc.lat},${loc.lng}&z=15&output=embed`;
-            if (v.tracking.locationLabel) {
-                $('#locationPlaceName').querySelector('span').textContent = v.tracking.locationLabel;
-                $('#locationPlaceName').style.display = 'block';
-            } else {
-                refreshLocationPlaceName(loc.lat, loc.lng);
-            }
+            renderVehicleLocation(v, loc.lat, loc.lng, v.tracking.locationLabel);
+            $('#locationLastPing').textContent = (v.tracking && v.tracking.lastPingAt)
+                ? 'Last updated ' + new Date(v.tracking.lastPingAt).toLocaleString()
+                : '';
         } else {
             $('#locationMapWrap').style.display = 'none';
             $('#locationEmptyState').style.display = 'block';
+            $('#locationLastPing').textContent = '';
+            // No location yet — try to get one automatically right away.
+            locateVehicleNow(id, { silent: true });
         }
-        $('#locationLastPing').textContent = (v.tracking && v.tracking.lastPingAt)
-            ? 'Last updated ' + new Date(v.tracking.lastPingAt).toLocaleString()
-            : '';
         $('#locationModal').classList.add('active');
     }
-    function closeLocationModal(){ $('#locationModal').classList.remove('active'); locationVehicleId = null; }
+    function closeLocationModal(){
+        $('#locationModal').classList.remove('active');
+        stopLiveTracking();
+        locationVehicleId = null;
+    }
     window.closeLocationModal = closeLocationModal;
-
-    $('#locateFromIpBtn').addEventListener('click', async () => {
-        const v = vehiclesCache.find(x => x._id === locationVehicleId);
-        const ip = v && v.tracking ? v.tracking.deviceIp : '';
-        if (!ip) {
-            showNotification('This vehicle has no tracker IP saved yet — add one in Edit Vehicle first', 'error');
-            return;
-        }
-        showSpinner();
-        try {
-            const data = await api('/geocode/locate-ip', { method: 'POST', body: { ip } });
-            $('#locLat').value = data.lat;
-            $('#locLng').value = data.lng;
-            $('#locationMapWrap').style.display = 'block';
-            $('#locationEmptyState').style.display = 'none';
-            $('#locationMapFrame').src = `https://www.google.com/maps?q=${data.lat},${data.lng}&z=13&output=embed`;
-            if (data.label) {
-                $('#locationPlaceName').querySelector('span').textContent = data.label + ' (approximate)';
-                $('#locationPlaceName').style.display = 'block';
-            }
-            showNotification('Approximate location found — review, then Save location', 'success');
-        } catch (err) { showNotification('Error: ' + err.message, 'error'); }
-        finally { hideSpinner(); }
-    });
-
-    $('#saveLocationBtn').addEventListener('click', async () => {
-        if (!locationVehicleId) return;
-        const lat = Number($('#locLat').value);
-        const lng = Number($('#locLng').value);
-        if (!$('#locLat').value || !$('#locLng').value || Number.isNaN(lat) || Number.isNaN(lng)) {
-            showNotification('Enter both latitude and longitude, or use "Locate from tracker IP"', 'error');
-            return;
-        }
-        showSpinner();
-        try {
-            const v = vehiclesCache.find(x => x._id === locationVehicleId);
-            const locationLabel = $('#locationPlaceName').style.display !== 'none'
-                ? $('#locationPlaceName').querySelector('span').textContent
-                : undefined;
-            await api(`/vehicles/${locationVehicleId}/tracking`, {
-                method: 'PATCH',
-                body: {
-                    deviceId: v && v.tracking ? v.tracking.deviceId : '',
-                    deviceIp: v && v.tracking ? v.tracking.deviceIp : '',
-                    lat, lng, locationLabel
-                }
-            });
-            showNotification('Location updated', 'success');
-            closeLocationModal();
-            await loadVehicles();
-        } catch (err) { showNotification('Error: ' + err.message, 'error'); }
-        finally { hideSpinner(); }
-    });
 
     function buildSelectOptions(selectEl, options, includeOther){
         selectEl.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('') + (includeOther ? '<option value="__other__">Other&hellip;</option>' : '');
