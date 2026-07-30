@@ -20,6 +20,7 @@
             --primary: #004E2B;
             --primary-light: #0a6e41;
             --primary-dark: #00351d;
+            --primary-gradient: linear-gradient(160deg, #0a6e41 0%, #004E2B 55%, #00351d 100%);
             --accent: #00A86B;
             --light: #f8f9fa;
             --card-bg: #ffffff;
@@ -173,7 +174,7 @@
         .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.2); }
         
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: var(--radius); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease; border: none; }
-        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary { background: var(--primary-gradient); color: white; }
         .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow); }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { background: #218838; transform: translateY(-2px); }
@@ -190,7 +191,7 @@
         
         .sidebar {
             width: 220px;
-            background: var(--primary);
+            background: var(--primary-gradient);
             color: white;
             position: fixed;
             height: 100vh;
@@ -250,7 +251,7 @@
         .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
         .stat-info h3 { font-size: 1.8rem; font-weight: 700; color: var(--primary); margin: 0; }
         .stat-info p { color: var(--muted); margin: 5px 0 0; font-size: 0.85rem; font-weight: 500; }
-        .stat-icon { width: 55px; height: 55px; background: rgba(0, 78, 43, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--primary); }
+        .stat-icon { width: 55px; height: 55px; background: var(--primary-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; box-shadow: 0 10px 20px -8px rgba(0,78,43,0.5); }
         
         .card {
             background: var(--card-bg);
@@ -317,7 +318,7 @@
         .modal-header { 
             padding: 18px 25px; 
             border-bottom: 1px solid var(--border); 
-            background: var(--primary); 
+            background: var(--primary-gradient); 
             color: white; 
             border-radius: var(--radius-lg) var(--radius-lg) 0 0; 
             display: flex; 
@@ -354,6 +355,18 @@
         .batch-item, .executive-item { background: #f8f9fa; border-radius: var(--radius); padding: 10px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         
         .dashboard-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-top: 25px; }
+        .chart-wrap { position: relative; height: 200px; width: 100%; }
+        .chart-wrap.chart-wrap-donut { max-width: 240px; margin: 0 auto; height: 200px; }
+        .mini-list { display: flex; flex-direction: column; }
+        .mini-list-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .mini-list-item:last-child { border-bottom: none; }
+        .mini-list-thumb { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; background: var(--light); flex-shrink: 0; }
+        .mini-list-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+        .mini-list-title { font-size: 0.88rem; font-weight: 600; color: var(--primary); }
+        .mini-list-sub { font-size: 0.75rem; color: var(--muted); }
+        .mini-list-empty { text-align: center; color: var(--muted); padding: 24px 0; font-size: 0.85rem; }
+        .view-all-btn { display: block; text-align: center; padding: 10px; margin-top: 8px; border-radius: var(--radius); background: var(--light); color: var(--primary); font-weight: 600; font-size: 0.82rem; border: none; cursor: pointer; width: 100%; transition: 0.2s; }
+        .view-all-btn:hover { background: var(--primary-gradient); color: #fff; }
         
         .member-list { max-height: 400px; overflow-y: auto; }
         .member-item { display: flex; justify-content: left; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 15px; }
@@ -572,7 +585,7 @@
             min-height: 50px;
         }
         .selected-tag {
-            background: var(--primary);
+            background: var(--primary-gradient);
             color: white;
             padding: 4px 10px;
             border-radius: 20px;
@@ -589,6 +602,29 @@
         .selected-tag i:hover {
             opacity: 1;
         }
+        .image-dropzone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 28px 20px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            background: var(--light);
+            cursor: pointer;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .image-dropzone i { font-size: 26px; color: var(--primary); margin-bottom: 4px; }
+        .image-dropzone span { font-size: 0.85rem; color: var(--muted); }
+        .image-dropzone span strong { color: var(--primary); }
+        .image-dropzone-sub { font-size: 0.72rem !important; color: var(--muted); opacity: 0.8; }
+        .image-dropzone:hover, .image-dropzone.dragover {
+            border-color: var(--accent);
+            background: rgba(0,168,107,0.06);
+        }
+        .image-dropzone.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         .search-input-multi {
             width: 100%;
             padding: 10px;
@@ -666,7 +702,7 @@
         .status-info { background: #e2e3e5; color: #383d41; }
 
         .tab-btn { border-radius: 20px !important; }
-        .tab-btn.active { background: var(--primary) !important; color: white !important; }
+        .tab-btn.active { background: var(--primary-gradient) !important; color: white !important; }
     </style>
 </head>
 <body>
@@ -701,7 +737,7 @@
         </form>
     </div>
     <div class="login-footer">
-        <p>SIDITA &middot; connecting to backend API</p>
+        <p>SIDITA &copy; 2026 Fleet Operations. All rights reserved.</p>
     </div>
 </div>
 
@@ -746,18 +782,46 @@
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-info"><h3 id="statTotalVehicles">0</h3><p>Total Vehicles</p></div><div class="stat-icon"><i class="fas fa-car"></i></div></div>
                     <div class="stat-card"><div class="stat-info"><h3 id="statAvailable">0</h3><p>Available Now</p></div><div class="stat-icon"><i class="fas fa-check"></i></div></div>
+                    <div class="stat-card"><div class="stat-info"><h3 id="statForSale">0</h3><p>For Sale</p></div><div class="stat-icon"><i class="fas fa-tag"></i></div></div>
+                    <div class="stat-card"><div class="stat-info"><h3 id="statLeasedRented">0</h3><p>Leased / Rented</p></div><div class="stat-icon"><i class="fas fa-file-signature"></i></div></div>
                     <div class="stat-card"><div class="stat-info"><h3 id="statPending">0</h3><p>Pending Requests</p></div><div class="stat-icon"><i class="fas fa-clipboard-list"></i></div></div>
+                    <div class="stat-card"><div class="stat-info"><h3 id="statTotalRequests">0</h3><p>Total Requests</p></div><div class="stat-icon"><i class="fas fa-inbox"></i></div></div>
+                    <div class="stat-card"><div class="stat-info"><h3 id="statAdmins">0</h3><p>Administrators</p></div><div class="stat-icon"><i class="fas fa-users-cog"></i></div></div>
                     <div class="stat-card"><div class="stat-info"><h3 id="statRevenue">₦0</h3><p>Est. Revenue</p></div><div class="stat-icon"><i class="fas fa-chart-line"></i></div></div>
                 </div>
 
                 <div class="dashboard-cards-grid">
                     <div class="card">
                         <div class="card-header"><div class="card-title"><i class="fas fa-chart-bar"></i> Requests per Month</div></div>
-                        <div class="card-body"><canvas id="monthlyChart" height="220"></canvas></div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="monthlyChart"></canvas></div></div>
                     </div>
                     <div class="card">
                         <div class="card-header"><div class="card-title"><i class="fas fa-chart-line"></i> Fleet Status</div></div>
-                        <div class="card-body"><canvas id="statusChart" height="220"></canvas></div>
+                        <div class="card-body"><div class="chart-wrap chart-wrap-donut"><canvas id="statusChart"></canvas></div></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-cards-grid">
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-car"></i> Latest Vehicles</div></div>
+                        <div class="card-body">
+                            <div class="mini-list" id="latestVehiclesList"><p class="mini-list-empty">loading&hellip;</p></div>
+                            <button class="view-all-btn" data-goto-page="vehicles">View all vehicles</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-clipboard-list"></i> Latest Requests</div></div>
+                        <div class="card-body">
+                            <div class="mini-list" id="latestRequestsList"><p class="mini-list-empty">loading&hellip;</p></div>
+                            <button class="view-all-btn" data-goto-page="requests">View all requests</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><div class="card-title"><i class="fas fa-users-cog"></i> Administrators</div></div>
+                        <div class="card-body">
+                            <div class="mini-list" id="latestAdminsList"><p class="mini-list-empty">loading&hellip;</p></div>
+                            <button class="view-all-btn" data-goto-page="admins">View all admins</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -774,8 +838,8 @@
                     <div class="card-body">
                         <div class="table-container">
                             <table class="data-table" id="vehiclesTable">
-                                <thead><th>Vehicle</th><th>Category</th><th>Status</th><th>Daily / Monthly</th><th>Tracker IP</th><th>Location</th><th>Actions</th></thead>
-                                <tbody id="vehiclesTableBody"><tr><td colspan="7" style="text-align:center; padding:30px; color:var(--muted);">loading vehicles&hellip;</td></tr></tbody>
+                                <thead><th>Photo</th><th>Vehicle</th><th>Category</th><th>Status</th><th>Daily / Monthly</th><th>Tracker IP</th><th>Location</th><th>Actions</th></thead>
+                                <tbody id="vehiclesTableBody"><tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">loading vehicles&hellip;</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -788,12 +852,12 @@
                     <div class="card-header">
                         <div class="card-title"><i class="fas fa-clipboard-list"></i> Lease &amp; Rental Requests</div>
                         <div class="btn-group" id="requestTabs">
-                            <button class="btn btn-secondary btn-sm tab-btn active" data-status="">All</button>
-                            <button class="btn btn-secondary btn-sm tab-btn" data-status="pending">Pending</button>
-                            <button class="btn btn-secondary btn-sm tab-btn" data-status="approved">Approved</button>
-                            <button class="btn btn-secondary btn-sm tab-btn" data-status="active">Active</button>
-                            <button class="btn btn-secondary btn-sm tab-btn" data-status="completed">Completed</button>
-                            <button class="btn btn-secondary btn-sm tab-btn" data-status="cancelled">Cancelled</button>
+                            <button type="button" class="btn btn-secondary btn-sm tab-btn active" data-status="">All</button>
+                            <button type="button" class="btn btn-secondary btn-sm tab-btn" data-status="pending">Pending</button>
+                            <button type="button" class="btn btn-secondary btn-sm tab-btn" data-status="approved">Approved</button>
+                            <button type="button" class="btn btn-secondary btn-sm tab-btn" data-status="active">Active</button>
+                            <button type="button" class="btn btn-secondary btn-sm tab-btn" data-status="completed">Completed</button>
+                            <button type="button" class="btn btn-secondary btn-sm tab-btn" data-status="cancelled">Cancelled</button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -989,8 +1053,12 @@
                     <div class="form-group" style="grid-column: 1/-1;">
                         <label class="form-label">Photos (up to 5)</label>
                         <div id="vImagePreviews" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;"></div>
-                        <input type="file" id="vImageFiles" accept="image/*" multiple style="padding:10px 15px;">
-                        <p style="color:var(--muted); font-size:0.78rem; margin-top:6px;">Selecting new photos adds to the list below, up to 5 total. Click the &times; on a thumbnail to remove it.</p>
+                        <label id="vImageDropzone" for="vImageFiles" class="image-dropzone">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span><strong>Click to upload</strong> or drag and drop photos here</span>
+                            <span class="image-dropzone-sub">PNG or JPG, up to 5 photos</span>
+                        </label>
+                        <input type="file" id="vImageFiles" accept="image/*" multiple style="display:none;">
                     </div>
                     <div class="form-group" style="grid-column: 1/-1;"><label class="form-label">Description</label><textarea id="vDescription" class="form-control" rows="2" placeholder="short description"></textarea></div>
                 </div>
@@ -1084,10 +1152,17 @@
             <button class="modal-close" onclick="closeLocationModal()">&times;</button>
         </div>
         <div class="modal-body">
+            <p id="locationPlaceName" style="display:none; font-weight:700; color:var(--primary); font-size:1rem; margin-bottom:12px;"><i class="fas fa-map-pin"></i> <span></span></p>
             <div id="locationMapWrap" style="border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); margin-bottom:16px; display:none;">
                 <iframe id="locationMapFrame" width="100%" height="260" style="border:0; display:block;" loading="lazy"></iframe>
             </div>
-            <p id="locationEmptyState" style="color:var(--muted); font-size:0.9rem; margin-bottom:16px;">No location on file for this vehicle yet. Enter coordinates below (e.g. from the tracker device) to plot it.</p>
+            <p id="locationEmptyState" style="color:var(--muted); font-size:0.9rem; margin-bottom:16px;">No location on file for this vehicle yet. Try locating it from its tracker IP, or enter coordinates manually below.</p>
+
+            <button class="btn btn-secondary" id="locateFromIpBtn" type="button" style="width:100%; margin-bottom:14px;">
+                <i class="fas fa-satellite-dish"></i> Locate from tracker IP
+            </button>
+            <p style="color:var(--muted); font-size:0.72rem; margin:-8px 0 14px; text-align:center;">Approximate — based on the tracker's internet connection, not exact GPS. Can be off by a city or more.</p>
+
             <div class="form-grid">
                 <div class="form-group"><label class="form-label">Latitude</label><input type="number" step="any" id="locLat" class="form-control" style="padding-left:15px;" placeholder="6.4483"></div>
                 <div class="form-group"><label class="form-label">Longitude</label><input type="number" step="any" id="locLng" class="form-control" style="padding-left:15px;" placeholder="3.4720"></div>
@@ -1101,6 +1176,20 @@
     </div>
 </div>
 
+<!-- VEHICLE DETAIL MODAL (from Requests page) -->
+<div id="vehicleDetailModal" class="modal-overlay">
+    <div class="modal" style="max-width: 480px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-car"></i> Vehicle Details</h3>
+            <button class="modal-close" onclick="closeVehicleDetailModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="vdModalBody"></div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeVehicleDetailModal()">Close</button>
+        </div>
+    </div>
+</div>
+
 <div id="notificationContainer"></div>
 
 <script>
@@ -1109,6 +1198,9 @@
 
     const $ = (sel) => document.querySelector(sel);
     const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+    const PLACEHOLDER_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><rect width="60" height="60" fill="%23e9ecef"/><text x="50%" y="55%" font-family="sans-serif" font-size="8" fill="%23adb5bd" text-anchor="middle">no photo</text></svg>'
+    );
 
     function getToken(){ return localStorage.getItem('sidita_admin_token'); }
     function setToken(t){ localStorage.setItem('sidita_admin_token', t); }
@@ -1203,16 +1295,20 @@
 
     if (getToken()) { enterApp(); } else { hideSpinner(); }
 
+    function goToPage(page){
+        $$('.nav-item[data-page]').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+        $$('#page-dashboard, #page-vehicles, #page-requests, #page-admins, #page-settings').forEach(p => p.style.display = 'none');
+        $('#page-' + page).style.display = 'block';
+        const navBtn = $(`.nav-item[data-page="${page}"]`);
+        if (navBtn) $('#pageTitle').textContent = navBtn.querySelector('span').textContent;
+    }
+
     // navigation
     $$('.nav-item[data-page]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            $$('.nav-item[data-page]').forEach(b=>b.classList.remove('active'));
-            btn.classList.add('active');
-            const page = btn.dataset.page;
-            $$('#page-dashboard, #page-vehicles, #page-requests, #page-admins, #page-settings').forEach(p => p.style.display = 'none');
-            $('#page-' + page).style.display = 'block';
-            $('#pageTitle').textContent = btn.querySelector('span').textContent;
-        });
+        btn.addEventListener('click', () => goToPage(btn.dataset.page));
+    });
+    $$('[data-goto-page]').forEach(btn => {
+        btn.addEventListener('click', () => goToPage(btn.dataset.gotoPage));
     });
 
     // ----- DASHBOARD -----
@@ -1220,13 +1316,27 @@
 
     async function loadDashboard(){
         try {
-            const data = await api('/analytics/summary');
+            const [data, latestVehicles, latestRequests, latestAdmins] = await Promise.all([
+                api('/analytics/summary'),
+                api('/vehicles', { auth:false }).catch(() => []),
+                api('/leases').catch(() => []),
+                api('/admins').catch(() => [])
+            ]);
+
             const byStatus = Object.fromEntries((data.vehiclesByStatus||[]).map(s=>[s._id, s.count]));
             $('#statTotalVehicles').textContent = data.totalVehicles;
             $('#statAvailable').textContent = byStatus.available || 0;
+            $('#statForSale').textContent = latestVehicles.filter(v => v.listingStatus === 'For Sale').length;
+            $('#statLeasedRented').textContent = (byStatus.leased || 0) + (byStatus.rented || 0);
             const pending = (data.requestsByStatus||[]).find(s=>s._id==='pending');
             $('#statPending').textContent = pending ? pending.count : 0;
+            $('#statTotalRequests').textContent = data.totalRequests || 0;
+            $('#statAdmins').textContent = latestAdmins.length;
             $('#statRevenue').textContent = fmtMoney(data.estimatedRevenue);
+
+            renderLatestVehicles(latestVehicles.slice(0, 6));
+            renderLatestRequests(latestRequests.slice(0, 6));
+            renderLatestAdmins([...latestAdmins].reverse().slice(0, 6));
 
             const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             const monthlyLabels = (data.requestsPerMonth||[]).map(m=>months[m._id.month-1]+' '+m._id.year);
@@ -1242,19 +1352,58 @@
             if (monthlyChart) monthlyChart.destroy();
             monthlyChart = new Chart($('#monthlyChart'), {
                 type:'bar',
-                data:{ labels: monthlyLabels.length?monthlyLabels:['no data'], datasets:[{ label:'requests', data: monthlyValues.length?monthlyValues:[0], backgroundColor:'#004E2B', borderRadius:8 }] },
-                options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
+                data:{ labels: monthlyLabels.length?monthlyLabels:['no data'], datasets:[{ label:'requests', data: monthlyValues.length?monthlyValues:[0], backgroundColor:'#0a6e41', borderRadius:5, maxBarThickness:22, categoryPercentage:0.5, barPercentage:0.7 }] },
+                options:{ maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0, font:{ size:11 } } }, x:{ ticks:{ font:{ size:11 } } } } }
             });
 
             if (statusChart) statusChart.destroy();
             statusChart = new Chart($('#statusChart'), {
                 type:'doughnut',
                 data:{ labels: statusLabels.length?statusLabels:['no vehicles'], datasets:[{ data: statusValues.length?statusValues:[1], backgroundColor:['#004E2B','#00A86B','#6c757d','#dc3545'] }] },
-                options:{ plugins:{ legend:{ position:'bottom' } } }
+                options:{ maintainAspectRatio:false, cutout:'72%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, font:{ size:11 }, padding:10 } } } }
             });
         } catch (err) {
             showNotification('Analytics error: ' + err.message, 'error');
         }
+    }
+
+    function renderLatestVehicles(list){
+        const el = $('#latestVehiclesList');
+        if (!list.length) { el.innerHTML = '<p class="mini-list-empty">No vehicles yet.</p>'; return; }
+        el.innerHTML = list.map(v => `
+            <div class="mini-list-item">
+                <img class="mini-list-thumb" src="${(v.images && v.images[0]) || PLACEHOLDER_IMG}" alt="">
+                <div style="flex:1; min-width:0;">
+                    <div class="mini-list-title">${v.name}</div>
+                    <div class="mini-list-sub">${v.brand} &middot; ${v.modelYear} &middot; ${v.status}</div>
+                </div>
+            </div>`).join('');
+    }
+
+    function renderLatestRequests(list){
+        const el = $('#latestRequestsList');
+        if (!list.length) { el.innerHTML = '<p class="mini-list-empty">No requests yet.</p>'; return; }
+        el.innerHTML = list.map(r => `
+            <div class="mini-list-item">
+                <div class="mini-list-avatar">${(r.customerName||'?').trim()[0].toUpperCase()}</div>
+                <div style="flex:1; min-width:0;">
+                    <div class="mini-list-title">${r.customerName}</div>
+                    <div class="mini-list-sub">${r.vehicle ? r.vehicle.name : 'vehicle removed'} &middot; ${r.type} &middot; ${r.status}</div>
+                </div>
+            </div>`).join('');
+    }
+
+    function renderLatestAdmins(list){
+        const el = $('#latestAdminsList');
+        if (!list.length) { el.innerHTML = '<p class="mini-list-empty">No admins yet.</p>'; return; }
+        el.innerHTML = list.map(a => `
+            <div class="mini-list-item">
+                <div class="mini-list-avatar">${(a.name||'?').trim()[0].toUpperCase()}</div>
+                <div style="flex:1; min-width:0;">
+                    <div class="mini-list-title">${a.name}</div>
+                    <div class="mini-list-sub">${a.email} &middot; ${a.role}</div>
+                </div>
+            </div>`).join('');
     }
 
     // ----- VEHICLES -----
@@ -1265,7 +1414,7 @@
             vehiclesCache = await api('/vehicles', { auth:false });
             renderVehicles();
         } catch (err) {
-            $('#vehiclesTableBody').innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--muted);">couldn't load vehicles: ${err.message}</td></tr>`;
+            $('#vehiclesTableBody').innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">couldn't load vehicles: ${err.message}</td></tr>`;
         }
     }
 
@@ -1278,13 +1427,15 @@
     function renderVehicles(){
         const body = $('#vehiclesTableBody');
         if (!vehiclesCache.length){
-            body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--muted);">no vehicles yet &mdash; add your first.</td></tr>';
+            body.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">no vehicles yet &mdash; add your first.</td></tr>';
             return;
         }
         body.innerHTML = vehiclesCache.map(v => {
             const loc = v.tracking && v.tracking.lastKnownLocation && v.tracking.lastKnownLocation.lat != null && v.tracking.lastKnownLocation.lng != null;
+            const thumb = (v.images && v.images[0]) || PLACEHOLDER_IMG;
             return `
             <tr>
+                <td><img src="${thumb}" alt="" style="width:54px; height:54px; object-fit:cover; border-radius:10px; border:1px solid var(--border); background:var(--light);"></td>
                 <td><strong>${v.name}</strong> ${v.listingStatus === 'For Sale' ? '<span class="status-badge" style="background:#fdf3d8;color:#8a6417;">For Sale</span>' : ''}<br><span style="color:var(--muted);font-size:0.75rem;">${v.brand} &middot; ${v.modelYear} &middot; ${v.condition || 'Nigerian Used'}</span></td>
                 <td>${v.category}</td>
                 <td><span class="status-badge ${statusBadgeClass(v.status)}">${v.status}</span></td>
@@ -1309,6 +1460,17 @@
     // ----- VEHICLE LOCATION (view on map / update coordinates) -----
     let locationVehicleId = null;
 
+    async function refreshLocationPlaceName(lat, lng){
+        $('#locationPlaceName').style.display = 'none';
+        try {
+            const data = await api(`/geocode/reverse?lat=${lat}&lng=${lng}`);
+            if (data.label) {
+                $('#locationPlaceName').querySelector('span').textContent = data.label;
+                $('#locationPlaceName').style.display = 'block';
+            }
+        } catch (err) { /* non-critical — map still shows without a place name */ }
+    }
+
     function openLocationModal(id){
         const v = vehiclesCache.find(x => x._id === id);
         if (!v) return;
@@ -1319,11 +1481,18 @@
 
         $('#locLat').value = hasLoc ? loc.lat : '';
         $('#locLng').value = hasLoc ? loc.lng : '';
+        $('#locationPlaceName').style.display = 'none';
 
         if (hasLoc) {
             $('#locationMapWrap').style.display = 'block';
             $('#locationEmptyState').style.display = 'none';
             $('#locationMapFrame').src = `https://www.google.com/maps?q=${loc.lat},${loc.lng}&z=15&output=embed`;
+            if (v.tracking.locationLabel) {
+                $('#locationPlaceName').querySelector('span').textContent = v.tracking.locationLabel;
+                $('#locationPlaceName').style.display = 'block';
+            } else {
+                refreshLocationPlaceName(loc.lat, loc.lng);
+            }
         } else {
             $('#locationMapWrap').style.display = 'none';
             $('#locationEmptyState').style.display = 'block';
@@ -1336,23 +1505,50 @@
     function closeLocationModal(){ $('#locationModal').classList.remove('active'); locationVehicleId = null; }
     window.closeLocationModal = closeLocationModal;
 
+    $('#locateFromIpBtn').addEventListener('click', async () => {
+        const v = vehiclesCache.find(x => x._id === locationVehicleId);
+        const ip = v && v.tracking ? v.tracking.deviceIp : '';
+        if (!ip) {
+            showNotification('This vehicle has no tracker IP saved yet — add one in Edit Vehicle first', 'error');
+            return;
+        }
+        showSpinner();
+        try {
+            const data = await api('/geocode/locate-ip', { method: 'POST', body: { ip } });
+            $('#locLat').value = data.lat;
+            $('#locLng').value = data.lng;
+            $('#locationMapWrap').style.display = 'block';
+            $('#locationEmptyState').style.display = 'none';
+            $('#locationMapFrame').src = `https://www.google.com/maps?q=${data.lat},${data.lng}&z=13&output=embed`;
+            if (data.label) {
+                $('#locationPlaceName').querySelector('span').textContent = data.label + ' (approximate)';
+                $('#locationPlaceName').style.display = 'block';
+            }
+            showNotification('Approximate location found — review, then Save location', 'success');
+        } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        finally { hideSpinner(); }
+    });
+
     $('#saveLocationBtn').addEventListener('click', async () => {
         if (!locationVehicleId) return;
         const lat = Number($('#locLat').value);
         const lng = Number($('#locLng').value);
         if (!$('#locLat').value || !$('#locLng').value || Number.isNaN(lat) || Number.isNaN(lng)) {
-            showNotification('Enter both latitude and longitude', 'error');
+            showNotification('Enter both latitude and longitude, or use "Locate from tracker IP"', 'error');
             return;
         }
         showSpinner();
         try {
             const v = vehiclesCache.find(x => x._id === locationVehicleId);
+            const locationLabel = $('#locationPlaceName').style.display !== 'none'
+                ? $('#locationPlaceName').querySelector('span').textContent
+                : undefined;
             await api(`/vehicles/${locationVehicleId}/tracking`, {
                 method: 'PATCH',
                 body: {
                     deviceId: v && v.tracking ? v.tracking.deviceId : '',
                     deviceIp: v && v.tracking ? v.tracking.deviceIp : '',
-                    lat, lng
+                    lat, lng, locationLabel
                 }
             });
             showNotification('Location updated', 'success');
@@ -1466,17 +1662,40 @@
             renderImagePreviews();
         }));
         $('#vImageFiles').disabled = totalImageCount() >= 5;
+        $('#vImageDropzone').classList.toggle('disabled', totalImageCount() >= 5);
     }
 
-    $('#vImageFiles').addEventListener('change', (e) => {
-        const files = Array.from(e.target.files || []);
+    function addImageFiles(files){
         const room = 5 - totalImageCount();
+        if (room <= 0) {
+            showNotification('Maximum of 5 photos reached — remove one first', 'error');
+            return;
+        }
         if (files.length > room) {
             showNotification(`Only ${room} more photo(s) can be added (max 5 total)`, 'error');
         }
-        pendingImageFiles.push(...files.slice(0, room));
-        e.target.value = '';
+        const imagesOnly = files.filter(f => f.type.startsWith('image/'));
+        pendingImageFiles.push(...imagesOnly.slice(0, room));
         renderImagePreviews();
+    }
+
+    $('#vImageFiles').addEventListener('change', (e) => {
+        addImageFiles(Array.from(e.target.files || []));
+        e.target.value = '';
+    });
+
+    const dropzone = $('#vImageDropzone');
+    ['dragenter', 'dragover'].forEach(evt => dropzone.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (totalImageCount() < 5) dropzone.classList.add('dragover');
+    }));
+    ['dragleave', 'drop'].forEach(evt => dropzone.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        dropzone.classList.remove('dragover');
+    }));
+    dropzone.addEventListener('drop', (e) => {
+        const files = Array.from(e.dataTransfer.files || []);
+        if (files.length) addImageFiles(files);
     });
 
     async function uploadImageFiles(files){
@@ -1868,7 +2087,10 @@
         return 'status-warning';
     }
 
+    let requestsCache = [];
+
     function renderRequests(list){
+        requestsCache = list;
         const body = $('#requestsTableBody');
         if (!list.length){
             body.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">no requests in this filter.</td></tr>';
@@ -1877,7 +2099,7 @@
         body.innerHTML = list.map(r => `
             <tr>
                 <td><strong>${r.customerName}</strong><br><span style="color:var(--muted);font-size:0.75rem;">${r.customerEmail}</span></td>
-                <td>${r.vehicle ? r.vehicle.name : '&mdash;'}</td>
+                <td>${r.vehicle ? `<a href="#" data-view-vehicle="${r.vehicle._id}" style="color:var(--primary); font-weight:600;">${r.vehicle.name} <i class="fas fa-external-link-alt" style="font-size:0.7em;"></i></a>` : '&mdash;'}</td>
                 <td style="text-transform:capitalize;">${r.type}</td>
                 <td>${r.startDate ? new Date(r.startDate).toLocaleDateString() : '&mdash;'}${r.endDate ? ' &rarr; ' + new Date(r.endDate).toLocaleDateString() : ''}</td>
                 <td><span class="status-badge ${requestBadgeClass(r.status)}">${r.status}</span></td>
@@ -1897,17 +2119,46 @@
             } catch (err) { showNotification('Error: ' + err.message, 'error'); }
             finally { hideSpinner(); }
         }));
+        $$('[data-view-vehicle]').forEach(link => link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const req = requestsCache.find(r => r.vehicle && r.vehicle._id === link.dataset.viewVehicle);
+            if (req && req.vehicle) openVehicleDetailModal(req.vehicle);
+        }));
     }
+
+    function openVehicleDetailModal(v){
+        const img = (v.images && v.images[0]) || PLACEHOLDER_IMG;
+        $('#vdModalBody').innerHTML = `
+            <img src="${img}" style="width:100%; height:200px; object-fit:cover; border-radius:var(--radius); margin-bottom:16px; background:var(--light);">
+            <h3 style="margin-bottom:4px;">${v.name} ${v.listingStatus === 'For Sale' ? '<span class="status-badge" style="background:#fdf3d8;color:#8a6417;">For Sale</span>' : ''}</h3>
+            <p style="color:var(--muted); font-size:0.85rem; margin-bottom:16px;">${v.brand} &middot; ${v.modelYear} &middot; ${v.category} &middot; ${v.condition || 'Nigerian Used'}</p>
+            <div class="info-grid">
+                <div class="info-item"><span class="info-label">Status</span><span class="info-value" style="text-transform:capitalize;">${v.status}</span></div>
+                <div class="info-item"><span class="info-label">Transmission</span><span class="info-value">${v.transmission || '&mdash;'}</span></div>
+                <div class="info-item"><span class="info-label">Fuel type</span><span class="info-value">${v.fuelType || '&mdash;'}</span></div>
+                <div class="info-item"><span class="info-label">Seats</span><span class="info-value">${v.seats || '&mdash;'}</span></div>
+                <div class="info-item"><span class="info-label">Daily rate</span><span class="info-value">${fmtMoney(v.dailyRentalRate)}</span></div>
+                <div class="info-item"><span class="info-label">Monthly rate</span><span class="info-value">${fmtMoney(v.monthlyLeaseRate)}</span></div>
+                ${v.listingStatus === 'For Sale' ? `<div class="info-item"><span class="info-label">Purchase price</span><span class="info-value">${fmtMoney(v.purchasePrice)}</span></div>` : ''}
+                <div class="info-item"><span class="info-label">Plate number</span><span class="info-value">${v.plateNumber || '&mdash;'}</span></div>
+            </div>
+            ${v.description ? `<p style="margin-top:14px; color:var(--muted); font-size:0.85rem;">${v.description}</p>` : ''}
+        `;
+        $('#vehicleDetailModal').classList.add('active');
+    }
+    function closeVehicleDetailModal(){ $('#vehicleDetailModal').classList.remove('active'); }
+    window.closeVehicleDetailModal = closeVehicleDetailModal;
 
     let currentRequestFilter = '';
     $$('#requestTabs .tab-btn').forEach(tab => {
-        tab.addEventListener('click', async () => {
+        tab.addEventListener('click', async (e) => {
+            e.preventDefault();
             $$('#requestTabs .tab-btn').forEach(t=>t.classList.remove('active'));
             tab.classList.add('active');
             currentRequestFilter = tab.dataset.status;
-            showSpinner();
+            $('#requestsTableBody').style.opacity = '0.5';
             try { await loadRequests(currentRequestFilter); }
-            finally { hideSpinner(); }
+            finally { $('#requestsTableBody').style.opacity = '1'; }
         });
     });
 
