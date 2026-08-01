@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>SIDITA - Fleet Management System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js">
     </script>
     <script>
@@ -1562,15 +1563,11 @@
                                 <i class="fas fa-download"></i> Download App
                             </button>
                             <div class="dropdown-menu" id="downloadDropdownMenu">
-                                <button class="dropdown-item" data-platform="mac">
-                                    <i class="fab fa-apple"></i> Mac
-                                </button>
                                 <button class="dropdown-item" data-platform="windows">
                                     <i class="fab fa-windows"></i> Windows
                                 </button>
-                                <div class="dropdown-divider"></div>
-                                <button class="dropdown-item" style="color:var(--muted);font-size:0.75rem;cursor:default;justify-content:center;" disabled>
-                                    <i class="fas fa-info-circle"></i> Admin setup only
+                                <button class="dropdown-item" data-platform="mac">
+                                    <i class="fab fa-apple"></i> Mac
                                 </button>
                             </div>
                         </div>
@@ -2124,13 +2121,22 @@
             $$('.dropdown-item[data-platform]').forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.stopPropagation();
+            
                     const platform = item.dataset.platform;
+            
+                    const downloadUrls = {
+                        mac: 'https://github.com/somboy015c/sidita-panel/releases/download/latest-mac/sidita-panel.dmg',
+                        windows: 'https://github.com/somboy015c/sidita-panel/releases/download/latest-windows/sidita-panel.exe'
+                    };
+            
                     const name = platform === 'mac' ? 'Mac' : 'Windows';
-                    // In a real implementation, replace these URLs with actual download links.
-                    // For now we show a notification and close the dropdown.
+            
                     showNotification(`${name} download will begin shortly.`, 'success');
+            
                     dropdownMenu.classList.remove('open');
-                    // Example: window.location.href = platform === 'mac' ? '/downloads/sidita-mac.dmg' : '/downloads/sidita-windows.exe';
+            
+                    // Start download
+                    window.location.href = downloadUrls[platform];
                 });
             });
 
