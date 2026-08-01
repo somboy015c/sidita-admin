@@ -1664,8 +1664,8 @@
                             </div>
                             <div class="table-container">
                                 <table class="data-table" id="requestsTable">
-                                    <thead><th>Customer</th><th>Vehicle</th><th>Type</th><th>Dates</th><th>Status</th><th>Update</th></thead>
-                                    <tbody id="requestsTableBody"><tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">loading requests&hellip;</td></tr></tbody>
+                                    <thead><th>Customer</th><th>Vehicle</th><th>Type</th><th>Dates</th><th>Amount</th><th>Status</th><th>Update</th><th></th></thead>
+                                    <tbody id="requestsTableBody"><tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">loading requests&hellip;</td></tr></tbody>
                                 </table>
                             </div>
                         </div>
@@ -3048,7 +3048,7 @@
                     renderRequests(data);
                 } catch (err) {
                     $('#requestsTableBody').innerHTML =
-                        `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">couldn't load requests: ${err.message}</td></tr>`;
+                        `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">couldn't load requests: ${err.message}</td></tr>`;
                 }
             }
 
@@ -3064,7 +3064,7 @@
                 const body = $('#requestsTableBody');
                 if (!list.length) {
                     body.innerHTML =
-                        '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">no requests in this filter.</td></tr>';
+                        '<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">no requests in this filter.</td></tr>';
                     return;
                 }
                 body.innerHTML = list.map(r => `
@@ -3073,12 +3073,14 @@
                             <td>${r.vehicle ? `<a href="#" data-view-vehicle="${r.vehicle._id}" style="color:var(--primary); font-weight:600;">${r.vehicle.name} <i class="fas fa-external-link-alt" style="font-size:0.7em;"></i></a>` : '&mdash;'}</td>
                             <td style="text-transform:capitalize;">${r.type}</td>
                             <td>${r.startDate ? new Date(r.startDate).toLocaleDateString() : '&mdash;'}${r.endDate ? ' &rarr; ' + new Date(r.endDate).toLocaleDateString() : ''}</td>
+                            <td style="font-weight:700; white-space:nowrap;">${r.totalValue ? fmtMoney(r.totalValue) : '<span style="color:var(--muted); font-weight:400;">&mdash;</span>'}</td>
                             <td><span class="status-badge ${requestBadgeClass(r.status)}">${r.status}</span></td>
                             <td>
                                 <select data-status-for="${r._id}" class="form-control" style="padding:6px 10px; font-size:0.8rem;">
                                     ${['pending','approved','active','completed','cancelled'].map(s=>`<option value="${s}" ${s===r.status?'selected':''}>${s}</option>`).join('')}
                                 </select>
                             </td>
+                            <td><button type="button" class="btn btn-sm btn-danger" data-delete-request="${r._id}" data-request-customer="${r.customerName}" title="Delete request"><i class="fas fa-trash"></i></button></td>
                         </tr>
                     `).join('');
                 $$('[data-status-for]').forEach(sel => sel.addEventListener('change', async () => {
@@ -3094,6 +3096,16 @@
                     e.preventDefault();
                     const req = requestsCache.find(r => r.vehicle && r.vehicle._id === link.dataset.viewVehicle);
                     if (req && req.vehicle) openVehicleDetailModal(req.vehicle);
+                }));
+                $$('[data-delete-request]').forEach(btn => btn.addEventListener('click', async () => {
+                    const ok = await askConfirm(`Delete the request from ${btn.dataset.requestCustomer}? This cannot be undone.`, { title: 'Delete request' });
+                    if (!ok) return;
+                    showSpinner();
+                    try {
+                        await api('/leases/' + btn.dataset.deleteRequest, { method: 'DELETE' });
+                        showNotification('Request deleted', 'success');
+                        await Promise.all([loadDashboard(), loadRequests(currentRequestFilter)]);
+                    } catch (err) { showNotification('Error: ' + err.message, 'error'); } finally { hideSpinner(); }
                 }));
             }
 
