@@ -1761,7 +1761,6 @@
                                 <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:10px;">
                                     <div>
                                         <div style="font-weight:700; font-size:0.9rem;">Guest checkout</div>
-                                        <div id="guestModeStatusText" style="color:var(--muted); font-size:0.78rem; margin-top:2px;">Loading&hellip;</div>
                                     </div>
                                     <label class="toggle-switch">
                                         <input type="checkbox" id="guestModeToggle">
@@ -2977,7 +2976,6 @@
                         currencySelect.value = currencyValue;
                     }
                     $('#guestModeToggle').checked = appSettings.guestModeEnabled;
-                    updateGuestModeStatusText();
                     renderTagList('catList', appSettings.vehicleCategories);
                     renderTagList('brandList', appSettings.vehicleBrands);
                     renderTagList('fuelList', appSettings.fuelTypes);
@@ -2988,12 +2986,6 @@
                 }
             }
 
-            function updateGuestModeStatusText() {
-                $('#guestModeStatusText').textContent = appSettings.guestModeEnabled
-                    ? 'When turned On - anyone can request without an account'
-                    : 'When turned Off - customers must sign up or sign in first';
-            }
-
             $('#guestModeToggle').addEventListener('change', async (e) => {
                 const newValue = e.target.checked;
                 e.target.disabled = true;
@@ -3001,7 +2993,6 @@
                 try {
                     await api('/settings', { method: 'PUT', body: { guestModeEnabled: newValue } });
                     appSettings.guestModeEnabled = newValue;
-                    updateGuestModeStatusText();
                     showNotification(`Guest checkout turned ${newValue ? 'on' : 'off'}`, 'success');
                 } catch (err) {
                     e.target.checked = !newValue; // revert the toggle visually on failure
