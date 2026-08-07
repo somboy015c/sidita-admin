@@ -1193,6 +1193,13 @@
             border: 1px solid var(--border);
             min-height: 50px;
         }
+        .toggle-switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #d1d5db; border-radius: 26px; transition: 0.2s; }
+        .toggle-slider::before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .toggle-switch input:checked + .toggle-slider { background: var(--primary-gradient); }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+        .toggle-switch input:disabled + .toggle-slider { opacity: 0.5; cursor: not-allowed; }
         .selected-tag {
             background: var(--primary-gradient);
             color: white;
@@ -1748,6 +1755,23 @@
                             </div>
                         </div>
 
+                        <div class="card">
+                            <div class="card-header"><div class="card-title"><i class="fas fa-user-shield"></i> Customer Accounts</div></div>
+                            <div class="card-body">
+                                <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:10px;">
+                                    <div>
+                                        <div style="font-weight:700; font-size:0.9rem;">Guest checkout</div>
+                                        <div id="guestModeStatusText" style="color:var(--muted); font-size:0.78rem; margin-top:2px;">Loading&hellip;</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="guestModeToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <p style="color:var(--muted); font-size:0.8rem;">When <strong>on</strong>, customers can submit requests without an account. When <strong>off</strong>, they must sign up or sign in first before requesting a vehicle.</p>
+                            </div>
+                        </div>
+
                         <div class="card" style="grid-column: 1/-1;">
                             <div class="card-header"><div class="card-title"><i class="fas fa-list-ul"></i> Vehicle Dropdown Options</div></div>
                             <div class="card-body">
@@ -2053,7 +2077,8 @@
                 vehicleBrands: [],
                 fuelTypes: [],
                 transmissionTypes: [],
-                currency: { code: 'NGN', symbol: '₦' }
+                currency: { code: 'NGN', symbol: '₦' },
+                guestModeEnabled: true
             };
 
             function fmtMoney(n) { return (appSettings.currency && appSettings.currency.symbol || '\u20A6') + Number(n || 0)
@@ -2942,7 +2967,8 @@
                         vehicleBrands: data.vehicleBrands || [],
                         fuelTypes: data.fuelTypes || [],
                         transmissionTypes: data.transmissionTypes || [],
-                        currency: data.currency || { code: 'NGN', symbol: '₦' }
+                        currency: data.currency || { code: 'NGN', symbol: '₦' },
+                        guestModeEnabled: data.guestModeEnabled !== false
                     };
                     $$('.currency-label').forEach(el => el.textContent = appSettings.currency.symbol);
                     const currencyValue = appSettings.currency.code + '|' + appSettings.currency.symbol;
@@ -2950,6 +2976,8 @@
                     if ([...currencySelect.options].some(o => o.value === currencyValue)) {
                         currencySelect.value = currencyValue;
                     }
+                    $('#guestModeToggle').checked = appSettings.guestModeEnabled;
+                    updateGuestModeStatusText();
                     renderTagList('catList', appSettings.vehicleCategories);
                     renderTagList('brandList', appSettings.vehicleBrands);
                     renderTagList('fuelList', appSettings.fuelTypes);
@@ -2959,6 +2987,30 @@
                     showNotification('Could not load settings: ' + err.message, 'error');
                 }
             }
+
+            function updateGuestModeStatusText() {
+                $('#guestModeStatusText').textContent = appSettings.guestModeEnabled
+                    ? 'On — anyone can request without an account'
+                    : 'Off — customers must sign up or sign in first';
+            }
+
+            $('#guestModeToggle').addEventListener('change', async (e) => {
+                const newValue = e.target.checked;
+                e.target.disabled = true;
+                showSpinner();
+                try {
+                    await api('/settings', { method: 'PUT', body: { guestModeEnabled: newValue } });
+                    appSettings.guestModeEnabled = newValue;
+                    updateGuestModeStatusText();
+                    showNotification(`Guest checkout turned ${newValue ? 'on' : 'off'}`, 'success');
+                } catch (err) {
+                    e.target.checked = !newValue; // revert the toggle visually on failure
+                    showNotification('Error: ' + err.message, 'error');
+                } finally {
+                    e.target.disabled = false;
+                    hideSpinner();
+                }
+            });
 
             function renderTagList(containerId, list) {
                 const container = $('#' + containerId);
