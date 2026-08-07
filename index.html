@@ -1768,7 +1768,7 @@
                                         <span class="toggle-slider"></span>
                                     </label>
                                 </div>
-                                <p style="color:var(--muted); font-size:0.8rem;">When <strong>on</strong>, customers can submit requests without an account. When <strong>off</strong>, they must sign up or sign in first before requesting a vehicle.</p>
+                                <p style="color:var(--muted); font-size:0.8rem;">When turned <strong>on</strong>, customers can submit requests without an account. When turned <strong>off</strong>, they must sign up or sign in first before requesting a vehicle.</p>
                             </div>
                         </div>
 
@@ -1994,12 +1994,12 @@
                 </div>
                 <div id="locationEmptyState" style="text-align:center; padding:40px 20px; color:var(--muted); background:var(--light); border-radius:var(--radius); margin-bottom:12px;">
                     <i class="fas fa-satellite-dish" style="font-size:28px; margin-bottom:10px; display:block; color:var(--border);"></i>
-                    No location on file yet — checking this vehicle's tracker now…
+                    No location on file yet - checking this vehicle's tracker now…
                 </div>
 
                 <p style="color:var(--muted); font-size:0.75rem; background:#fff9e6; border:1px solid #ffe8a3; padding:10px 12px; border-radius:8px;">
                     <i class="fas fa-triangle-exclamation" style="color:#d4a017;"></i>
-                    Location is estimated from the tracker's internet connection (IP address), not true GPS — it can be off by a city or more and won't update the instant the vehicle moves. For reliable real-time anti-theft recovery, a dedicated GPS tracking device is needed; this is a best-effort estimate in the meantime.
+                    Location is estimated from the tracker's internet connection (IP address), not true GPS - it can be off by a city or more and won't update the instant the vehicle moves. For reliable real-time anti-theft recovery, a dedicated GPS tracking device is needed; this is a best-effort estimate in the meantime.
                 </p>
             </div>
             <div class="modal-footer">
@@ -2065,7 +2065,7 @@
                 try { data = await res.json(); } catch (e) {}
                 if (!res.ok) {
                     if (auth && res.status === 401) {
-                        forceLogout((data && data.error) || 'Your session has expired — please sign in again.');
+                        forceLogout((data && data.error) || 'Your session has expired - please sign in again.');
                     }
                     throw new Error((data && data.error) || 'request failed');
                 }
@@ -2244,7 +2244,7 @@
 
                     if (typeof Chart === 'undefined') {
                         $('#monthlyChart').closest('.card-body').innerHTML =
-                            '<p style="text-align:center; color:var(--muted); padding:30px 0;"><i class="fas fa-wifi" style="margin-right:6px;"></i>Charts couldn\'t load — check your internet connection and refresh.</p>';
+                            '<p style="text-align:center; color:var(--muted); padding:30px 0;"><i class="fas fa-wifi" style="margin-right:6px;"></i>Charts couldn\'t load - check your internet connection and refresh.</p>';
                         return;
                     }
 
@@ -2358,7 +2358,7 @@
                                 <td>${fmtMoney(v.dailyRentalRate)}/day<br>${fmtMoney(v.monthlyLeaseRate)}/mo</td>
                                 <td>${(v.tracking && v.tracking.deviceIp) || '&mdash;'}</td>
                                 <td>
-                                    <button class="btn btn-sm ${loc ? 'btn-secondary' : 'btn-warning'}" data-location="${v._id}" title="${loc ? 'View on map' : 'No location set — click to add one'}">
+                                    <button class="btn btn-sm ${loc ? 'btn-secondary' : 'btn-warning'}" data-location="${v._id}" title="${loc ? 'View on map' : 'No location set - click to add one'}">
                                         <i class="fas fa-map-marker-alt"></i> ${loc ? 'View' : 'Set'}
                                     </button>
                                 </td>
@@ -2386,7 +2386,7 @@
                         $('#locationPlaceName').querySelector('span').textContent = data.label;
                         $('#locationPlaceName').style.display = 'block';
                     }
-                } catch (err) { /* non-critical — map still shows without a place name */ }
+                } catch (err) { /* non-critical - map still shows without a place name */ }
             }
 
             function distanceKm(lat1, lng1, lat2, lng2) {
@@ -2429,7 +2429,7 @@
                 const ip = v && v.tracking ? v.tracking.deviceIp : '';
                 if (!ip) {
                     if (!silent) showNotification(
-                        'This vehicle has no tracker IP saved yet — add one in Edit Vehicle first', 'error');
+                        'This vehicle has no tracker IP saved yet - add one in Edit Vehicle first', 'error');
                     return null;
                 }
                 try {
@@ -2482,7 +2482,7 @@
                     showNotification('Live tracking stopped', 'success');
                 } else {
                     startLiveTracking(locationVehicleId);
-                    showNotification('Live tracking started — refreshing every 20 seconds', 'success');
+                    showNotification('Live tracking started - refreshing every 20 seconds', 'success');
                 }
             });
 
@@ -2635,7 +2635,7 @@
             function addImageFiles(files) {
                 const room = 5 - totalImageCount();
                 if (room <= 0) {
-                    showNotification('Maximum of 5 photos reached — remove one first', 'error');
+                    showNotification('Maximum of 5 photos reached - remove one first', 'error');
                     return;
                 }
                 if (files.length > room) {
@@ -2678,7 +2678,7 @@
                 try { data = await res.json(); } catch (e) {}
                 if (!res.ok) {
                     if (res.status === 401) forceLogout((data && data.error) ||
-                        'Your session has expired — please sign in again.');
+                        'Your session has expired - please sign in again.');
                     throw new Error((data && data.error) || 'Image upload failed');
                 }
                 return data.urls || [];
@@ -2954,7 +2954,7 @@
                 const pwd = $('#resetResultPassword').textContent;
                 navigator.clipboard.writeText(pwd).then(
                     () => showNotification('Copied to clipboard', 'success'),
-                    () => showNotification('Could not copy — select and copy manually', 'error')
+                    () => showNotification('Could not copy - select and copy manually', 'error')
                 );
             });
 
@@ -2990,8 +2990,8 @@
 
             function updateGuestModeStatusText() {
                 $('#guestModeStatusText').textContent = appSettings.guestModeEnabled
-                    ? 'On — anyone can request without an account'
-                    : 'Off — customers must sign up or sign in first';
+                    ? 'When turned On - anyone can request without an account'
+                    : 'When turned Off - customers must sign up or sign in first';
             }
 
             $('#guestModeToggle').addEventListener('change', async (e) => {
@@ -3018,7 +3018,7 @@
                         <span class="selected-tag" data-list="${containerId}" data-index="${i}">
                             ${item} <i class="fas fa-times" data-remove="${containerId}:${i}"></i>
                         </span>
-                    `).join('') || '<span style="color:var(--muted); font-size:0.8rem;">No options yet — add one below.</span>';
+                    `).join('') || '<span style="color:var(--muted); font-size:0.8rem;">No options yet - add one below.</span>';
                 $$(`[data-remove^="${containerId}:"]`).forEach(icon => {
                     icon.addEventListener('click', () => {
                         const idx = Number(icon.dataset.remove.split(':')[1]);
